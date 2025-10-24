@@ -270,29 +270,22 @@ const chatMessages = document.getElementById('chat-messages');
 
 const BOT_TOKEN = '7521339424:AAHVUtusUfEVGln14aEzpZI9122RT312Nc8';
 const CHAT_ID = '489679144';
-let lastUpdateId = 0;
-let pollingInterval;
-let displayedMessages = new Set();
+let sessionId = 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
 
 chatButton.addEventListener('click', () => {
     chatPopup.classList.toggle('show');
     if (chatPopup.classList.contains('show')) {
         chatInput.focus();
-        startPolling();
-    } else {
-        stopPolling();
     }
 });
 
 chatClose.addEventListener('click', () => {
     chatPopup.classList.remove('show');
-    stopPolling();
 });
 
 document.addEventListener('click', (e) => {
     if (!document.getElementById('chat-widget').contains(e.target)) {
         chatPopup.classList.remove('show');
-        stopPolling();
     }
 });
 
@@ -327,7 +320,7 @@ async function sendMessage() {
         const response = await fetch('/api/sendMessage', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message })
+            body: JSON.stringify({ message, sessionId })
         });
         
         console.log('Response status:', response.status);
@@ -348,37 +341,3 @@ async function sendMessage() {
     chatSend.textContent = 'Send';
 }
 
-async function checkForMessages() {
-    try {
-        const response = await fetch(`/api/getMessages?offset=${lastUpdateId + 1}`);
-        const data = await response.json();
-        
-        if (response.ok && data.ok && data.result.length > 0) {
-            data.result.forEach(update => {
-                if (update.message && update.message.chat.id == '489679144' && update.message.text && !update.message.text.startsWith('Portfolio Contact:')) {
-                    const messageId = update.message.message_id;
-                    if (!displayedMessages.has(messageId)) {
-                        addMessage(update.message.text, false);
-                        displayedMessages.add(messageId);
-                    }
-                }
-                lastUpdateId = update.update_id;
-            });
-        }
-    } catch (error) {
-        console.log('Polling error:', error);
-    }
-}
-
-function startPolling() {
-    if (!pollingInterval) {
-        pollingInterval = setInterval(checkForMessages, 3000);
-    }
-}
-
-function stopPolling() {
-    if (pollingInterval) {
-        clearInterval(pollingInterval);
-        pollingInterval = null;
-    }
-}

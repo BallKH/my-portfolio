@@ -12,7 +12,7 @@ export default async function handler(req, res) {
         return res.status(405).json({ error: 'Method not allowed' });
     }
 
-    const { message } = req.body;
+    const { message, sessionId } = req.body;
     
     if (!message) {
         return res.status(400).json({ error: 'Message is required' });
@@ -29,7 +29,7 @@ export default async function handler(req, res) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 chat_id: CHAT_ID,
-                text: `Portfolio Contact: ${message}`
+                text: `[${sessionId}] Portfolio Contact: ${message}`
             })
         });
 
