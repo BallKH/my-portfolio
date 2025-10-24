@@ -11,8 +11,8 @@ logger = logging.getLogger(__name__)
 BOT_TOKEN = "YOUR_BOT_TOKEN"
 BACKEND_API_URL = "http://localhost:5000/api"
 
-# Store session mappings (in production, use Redis or database)
-sessions = {}
+# Sessions are now managed by the web portfolio backend
+# No local storage needed
 
 class TelegramBot:
     def __init__(self):
@@ -29,54 +29,75 @@ class TelegramBot:
     async def start(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Handle /start command"""
         await update.message.reply_text(
-            "🤖 Telegram Bot Reply Handler\n\n"
+            "🤖 Web Portfolio Support Bot\n\n"
             "Commands:\n"
-            "/reply <session_id> <message> - Reply to web visitor\n"
-            "/sessions - List active sessions"
+            "📝 /reply <session_ID> <Text> - Reply to web visitor\n"
+            "📋 /sessions - List active sessions\n\n"
+            "Example:\n"
+            "/reply abc123 HI\n"
+            "/reply 1761304461298_k3perzz0p Hello, how can I help?"
         )
     
     async def reply(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Handle /reply command to send message to specific session"""
-        if len(context.args) < 2:
+        # Get the full command text
+        command_text = update.message.text
+        
+        # Parse: /reply session_ID Text
+        parts = command_text.split(' ', 2)
+        
+        if len(parts) < 3:
             await update.message.reply_text(
-                "❌ Usage: /reply <session_id> <message>\n"
-                "Example: /reply 1761304461298_k3perzz0p Hello from support!"
+                "❌ Usage: /reply <session_ID> <Text>\n"
+                "Example: /reply 1761304461298_k3perzz0p HI\n"
+                "Example: /reply abc123 Hello, how can I help you?"
             )
             return
         
-        session_id = context.args[0]
-        message = " ".join(context.args[1:])
+        session_id = parts[1]
+        message = parts[2]
         
-        if session_id not in sessions:
-            await update.message.reply_text(f"❌ Session ID '{session_id}' not found.")
-            return
-        
-        # Send message to web visitor
+        # Send message to web portfolio visitor
         success = await self.send_to_web_visitor(session_id, message)
         
         if success:
-            visitor_name = sessions[session_id].get('visitor_name', 'Unknown')
             await update.message.reply_text(
-                f"✅ Message sent to {visitor_name}\n"
-                f"Session: {session_id}\n"
-                f"Message: {message}"
+                f"✅ Message sent to session: {session_id}\n"
+                f"📝 Text: {message}\n"
+                f"🌐 Delivered to web portfolio"
             )
         else:
-            await update.message.reply_text(f"❌ Failed to send message to session {session_id}")
+            await update.message.reply_text(
+                f"❌ Failed to send to session: {session_id}\n"
+                "Check if session exists on web portfolio"
+            )
     
     async def list_sessions(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        """List all active sessions"""
-        if not sessions:
-            await update.message.reply_text("📭 No active sessions")
-            return
-        
-        session_list = "📋 Active Sessions:\n\n"
-        for session_id, data in sessions.items():
-            visitor_name = data.get('visitor_name', 'Unknown')
-            timestamp = data.get('timestamp', 'Unknown')
-            session_list += f"🔹 {visitor_name}\n   ID: {session_id}\n   Time: {timestamp}\n\n"
-        
-        await update.message.reply_text(session_list)
+        """List all active sessions from web portfolio"""
+        try:
+            # Get sessions from backend
+            response = requests.get(f"{BACKEND_API_URL}/sessions", timeout=5)
+            
+            if response.status_code == 200:
+                active_sessions = response.json()
+                
+                if not active_sessions:
+                    await update.message.reply_text("📭 No active sessions on web portfolio")
+                    return
+                
+                session_list = "📋 Active Web Portfolio Sessions:\n\n"
+                for session_id, data in active_sessions.items():
+                    visitor_name = data.get('visitor_name', 'Anonymous')
+                    timestamp = data.get('timestamp', 'Unknown')
+                    session_list += f"🔹 {visitor_name}\n   📱 ID: {session_id}\n   ⏰ Time: {timestamp}\n\n"
+                
+                session_list += "\n💡 Reply with: /reply <session_ID> <Text>"
+                await update.message.reply_text(session_list)
+            else:
+                await update.message.reply_text("❌ Cannot fetch sessions from web portfolio")
+                
+        except Exception as e:
+            await update.message.reply_text(f"❌ Error getting sessions: {str(e)}")
     
     async def handle_message(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Handle regular messages (optional - for general support)"""
