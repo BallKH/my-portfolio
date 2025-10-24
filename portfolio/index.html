@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/competencies.css">
     <link rel="stylesheet" href="css/logo.css">
+    <link rel="stylesheet" href="css/chat.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
@@ -237,19 +238,6 @@
                         </ul>
                     </div>
                 </div>
-                <div class="timeline-item">
-                    <div class="timeline-date">2015 - 2015</div>
-                    <div class="timeline-content">
-                        <h3>NOC (Network Operation Center)</h3>
-                        <h4>NeocomISP (NTC)</h4>
-                        <p>Cambodia</p>
-                        <ul>
-                            <li>Monitored network systems using monitoring tools</li>
-                            <li>Handled customer complaints and professional communication</li>
-                            <li>Managed mail communication and customer interactions</li>
-                        </ul>
-                    </div>
-                </div>
             </div>
         </div>
     </section>
@@ -263,8 +251,8 @@
             <div class="hobby-grid">
                 <div class="hobby-card">
                     <div class="hobby-icon">🎮</div>
-                    <h3>New Technology</h3>
-                    <p>I'm passionate about exploring new technologies. Whether it's staying updated with the latest IT innovations or enjoying strategic games, I find these activities help me maintain a sharp mind and stay creative in problem-solving.</p>
+                    <h3>Learning & Development</h3>
+                    <p>I'm a lifelong learner who enjoys reading about technology trends, IT certifications, and industry best practices. Continuous learning is essential in the fast-paced IT field, and I dedicate time to expand my knowledge regularly.</p>
                 </div>
                 <div class="hobby-card">
                     <div class="hobby-icon">🏃</div>
@@ -272,14 +260,9 @@
                     <p>Staying active is important to me. I enjoy various sports and fitness activities that help maintain physical health and mental well-being. Regular exercise keeps me energized and focused for both professional and personal challenges.</p>
                 </div>
                 <div class="hobby-card">
-                    <div class="hobby-icon">📚</div>
-                    <h3>Learning & Development</h3>
-                    <p>I'm a lifelong learner who enjoys reading about technology trends, IT certifications, and industry best practices. Continuous learning is essential in the fast-paced IT field, and I dedicate time to expand my knowledge regularly.</p>
-                </div>
-                <div class="hobby-card">
                     <div class="hobby-icon">🌍</div>
                     <h3>Travel & Culture</h3>
-                    <p>Exploring different cultures and places enriches my perspective. Travel experiences help me understand diverse business environments and connect with people from different backgrounds, which is valuable in my international IT work.</p>
+                    <p>Exploring different cultures and places enriches my perspective. Travel experiences help me understand diverse business environments and connect with people from different backgrounds, along with my favorite photography.</p>
                 </div>
             </div>
             <div class="hobby-images">
@@ -330,6 +313,24 @@
             <p>&copy; 2025 Chea Ponlork. All rights reserved.</p>
         </div>
     </footer>
+
+    <!-- Chat Widget -->
+    <div id="chat-widget">
+        <div id="chat-button" class="chat-button">
+            <i class="fas fa-comments"></i>
+        </div>
+        <div id="chat-popup" class="chat-popup">
+            <div class="chat-header">
+                <h3>Chat with Me</h3>
+                <button id="chat-close" class="chat-close">&times;</button>
+            </div>
+            <div class="chat-messages" id="chat-messages"></div>
+            <div class="chat-body">
+                <input type="text" id="chat-input" placeholder="Type your message..." maxlength="500">
+                <button id="chat-send" class="chat-send">Send</button>
+            </div>
+        </div>
+    </div>
 
     <script src="js/script.js"></script>
 </body>

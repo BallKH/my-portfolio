@@ -259,3 +259,118 @@ const debouncedScrollHandler = debounce(() => {
 }, 10);
 
 window.addEventListener('scroll', debouncedScrollHandler);
+
+// Chat Widget Functionality
+const chatButton = document.getElementById('chat-button');
+const chatPopup = document.getElementById('chat-popup');
+const chatClose = document.getElementById('chat-close');
+const chatInput = document.getElementById('chat-input');
+const chatSend = document.getElementById('chat-send');
+const chatMessages = document.getElementById('chat-messages');
+
+const BOT_TOKEN = '7521339424:AAHVUtusUfEVGln14aEzpZI9122RT312Nc8';
+const CHAT_ID = '489679144';
+let lastUpdateId = 0;
+let pollingInterval;
+
+chatButton.addEventListener('click', () => {
+    chatPopup.classList.toggle('show');
+    if (chatPopup.classList.contains('show')) {
+        chatInput.focus();
+        startPolling();
+    } else {
+        stopPolling();
+    }
+});
+
+chatClose.addEventListener('click', () => {
+    chatPopup.classList.remove('show');
+    stopPolling();
+});
+
+document.addEventListener('click', (e) => {
+    if (!document.getElementById('chat-widget').contains(e.target)) {
+        chatPopup.classList.remove('show');
+        stopPolling();
+    }
+});
+
+chatInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+        sendMessage();
+    }
+});
+
+chatSend.addEventListener('click', sendMessage);
+
+function addMessage(text, isUser = false) {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message ${isUser ? 'user' : 'bot'}`;
+    messageDiv.textContent = text;
+    chatMessages.appendChild(messageDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+async function sendMessage() {
+    const message = chatInput.value.trim();
+    if (!message) return;
+    
+    addMessage(message, true);
+    chatInput.value = '';
+    
+    chatSend.textContent = 'Sending...';
+    chatSend.disabled = true;
+    
+    try {
+        const response = await fetch('/api/sendMessage', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message })
+        });
+        
+        const result = await response.json();
+        
+        if (response.ok && result.success) {
+            addMessage('Message sent successfully!', false);
+        } else {
+            throw new Error(result.error || 'Failed to send');
+        }
+    } catch (error) {
+        console.error('Send error:', error);
+        addMessage('Failed to send message. Please try again.', false);
+    }
+    
+    chatSend.disabled = false;
+    chatSend.textContent = 'Send';
+}
+
+async function checkForMessages() {
+    try {
+        const response = await fetch(`/api/getMessages?offset=${lastUpdateId + 1}`);
+        const data = await response.json();
+        
+        if (response.ok && data.ok && data.result.length > 0) {
+            data.result.forEach(update => {
+                if (update.message && update.message.chat.id == CHAT_ID && update.message.text && !update.message.text.startsWith('Portfolio Contact:')) {
+                    addMessage(update.message.text, false);
+                }
+                lastUpdateId = update.update_id;
+            });
+        }
+    } catch (error) {
+        console.log('Polling error:', error);
+    }
+}
+
+function startPolling() {
+    if (!pollingInterval) {
+        pollingInterval = setInterval(checkForMessages, 3000);
+    }
+}
+
+function stopPolling() {
+    if (pollingInterval) {
+        clearInterval(pollingInterval);
+        pollingInterval = null;
+    }
+}
