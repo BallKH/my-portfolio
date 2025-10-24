@@ -268,24 +268,29 @@ const chatInput = document.getElementById('chat-input');
 const chatSend = document.getElementById('chat-send');
 const chatMessages = document.getElementById('chat-messages');
 
-const BOT_TOKEN = '7521339424:AAHVUtusUfEVGln14aEzpZI9122RT312Nc8';
-const CHAT_ID = '489679144';
 let sessionId = 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+let lastMessageId = 0;
+let pollInterval;
 
 chatButton.addEventListener('click', () => {
     chatPopup.classList.toggle('show');
     if (chatPopup.classList.contains('show')) {
         chatInput.focus();
+        startPolling();
+    } else {
+        stopPolling();
     }
 });
 
 chatClose.addEventListener('click', () => {
     chatPopup.classList.remove('show');
+    stopPolling();
 });
 
 document.addEventListener('click', (e) => {
     if (!document.getElementById('chat-widget').contains(e.target)) {
         chatPopup.classList.remove('show');
+        stopPolling();
     }
 });
 
@@ -316,28 +321,55 @@ async function sendMessage() {
     chatSend.disabled = true;
     
     try {
-        console.log('Sending message:', message);
         const response = await fetch('/api/sendMessage', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ message, sessionId })
         });
         
-        console.log('Response status:', response.status);
         const result = await response.json();
-        console.log('Response result:', result);
         
         if (response.ok && result.success) {
-            addMessage('Thanks for your message! I\'ll reply shortly.', false);
+            addMessage('Message sent! I\'ll reply shortly.', false);
         } else {
-            addMessage(`Error: ${result.error || 'Unknown error'}`, false);
+            addMessage(`Error: ${result.error || 'Failed to send'}`, false);
         }
     } catch (error) {
-        console.error('Send error:', error);
         addMessage(`Network error: ${error.message}`, false);
     }
     
     chatSend.disabled = false;
     chatSend.textContent = 'Send';
+}
+
+async function pollMessages() {
+    try {
+        const response = await fetch(`/api/getMessages?sessionId=${sessionId}&lastMessageId=${lastMessageId}`);
+        const result = await response.json();
+        
+        if (result.messages && result.messages.length > 0) {
+            result.messages.forEach(msg => {
+                if (msg.from === 'admin') {
+                    addMessage(msg.text, false);
+                    lastMessageId = Math.max(lastMessageId, msg.id);
+                }
+            });
+        }
+    } catch (error) {
+        console.error('Polling error:', error);
+    }
+}
+
+function startPolling() {
+    if (!pollInterval) {
+        pollInterval = setInterval(pollMessages, 2000);
+    }
+}
+
+function stopPolling() {
+    if (pollInterval) {
+        clearInterval(pollInterval);
+        pollInterval = null;
+    }
 }
 

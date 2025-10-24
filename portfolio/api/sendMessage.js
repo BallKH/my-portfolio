@@ -1,5 +1,7 @@
+// In-memory message storage
+const messageStore = new Map();
+
 export default async function handler(req, res) {
-    // Add CORS headers
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -14,35 +16,45 @@ export default async function handler(req, res) {
 
     const { message, sessionId } = req.body;
     
-    if (!message) {
-        return res.status(400).json({ error: 'Message is required' });
+    if (!message || !sessionId) {
+        return res.status(400).json({ error: 'Message and session ID required' });
     }
+
+    // Store user message
+    if (!messageStore.has(sessionId)) {
+        messageStore.set(sessionId, []);
+    }
+    messageStore.get(sessionId).push({
+        id: Date.now(),
+        text: message,
+        from: 'user',
+        timestamp: Date.now()
+    });
 
     const BOT_TOKEN = '7521339424:AAHVUtusUfEVGln14aEzpZI9122RT312Nc8';
     const CHAT_ID = '489679144';
 
     try {
-        console.log('Sending to Telegram:', message);
-        
         const response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 chat_id: CHAT_ID,
-                text: `[${sessionId}] Portfolio Contact: ${message}`
+                text: `[${sessionId}] ${message}`
             })
         });
 
         const result = await response.json();
-        console.log('Telegram response:', result);
 
         if (response.ok && result.ok) {
-            return res.status(200).json({ success: true, message: 'Message sent successfully' });
+            return res.status(200).json({ success: true });
         } else {
             return res.status(400).json({ error: result.description || 'Failed to send message' });
         }
     } catch (error) {
-        console.error('API Error:', error);
         return res.status(500).json({ error: `Internal server error: ${error.message}` });
     }
 }
+
+// Export message store for other APIs
+export { messageStore };
