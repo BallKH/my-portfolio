@@ -332,6 +332,15 @@
         </div>
     </div>
 
+    <script>
+        window.addEventListener('beforeunload', () => {
+            window.scrollTo(0, 0);
+        });
+        
+        if (history.scrollRestoration) {
+            history.scrollRestoration = 'manual';
+        }
+    </script>
     <script src="js/script.js"></script>
 </body>
 </html>
