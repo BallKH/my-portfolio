@@ -272,6 +272,7 @@ const BOT_TOKEN = '7521339424:AAHVUtusUfEVGln14aEzpZI9122RT312Nc8';
 const CHAT_ID = '489679144';
 let lastUpdateId = 0;
 let pollingInterval;
+let displayedMessages = new Set();
 
 chatButton.addEventListener('click', () => {
     chatPopup.classList.toggle('show');
@@ -334,7 +335,7 @@ async function sendMessage() {
         console.log('Response result:', result);
         
         if (response.ok && result.success) {
-            addMessage('Message sent successfully!', false);
+            addMessage('Thanks for your message! I\'ll reply shortly.', false);
         } else {
             addMessage(`Error: ${result.error || 'Unknown error'}`, false);
         }
@@ -355,7 +356,11 @@ async function checkForMessages() {
         if (response.ok && data.ok && data.result.length > 0) {
             data.result.forEach(update => {
                 if (update.message && update.message.chat.id == '489679144' && update.message.text && !update.message.text.startsWith('Portfolio Contact:')) {
-                    addMessage(update.message.text, false);
+                    const messageId = update.message.message_id;
+                    if (!displayedMessages.has(messageId)) {
+                        addMessage(update.message.text, false);
+                        displayedMessages.add(messageId);
+                    }
                 }
                 lastUpdateId = update.update_id;
             });
