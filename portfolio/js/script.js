@@ -354,7 +354,7 @@ async function checkForMessages() {
         
         if (response.ok && data.ok && data.result.length > 0) {
             data.result.forEach(update => {
-                if (update.message && update.message.chat.id == CHAT_ID && update.message.text && !update.message.text.startsWith('Portfolio Contact:')) {
+                if (update.message && update.message.chat.id == '489679144' && update.message.text && !update.message.text.startsWith('Portfolio Contact:')) {
                     addMessage(update.message.text, false);
                 }
                 lastUpdateId = update.update_id;
