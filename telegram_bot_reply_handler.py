@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 
 # Bot configuration
 BOT_TOKEN = "YOUR_BOT_TOKEN"
-BACKEND_API_URL = "https://your-backend.com/api"
+BACKEND_API_URL = "http://localhost:5000/api"
 
 # Store session mappings (in production, use Redis or database)
 sessions = {}
@@ -95,9 +95,9 @@ class TelegramBot:
                 "timestamp": self.get_timestamp()
             }
             
-            # Send to backend API
+            # Send to WebSocket backend API
             response = requests.post(
-                f"{BACKEND_API_URL}/send-to-visitor",
+                "http://localhost:5000/api/send-to-visitor",
                 json=payload,
                 headers={"Content-Type": "application/json"},
                 timeout=10
