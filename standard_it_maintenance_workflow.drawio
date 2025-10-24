@@ -1,0 +1,144 @@
+<mxfile host="65bd71144e">
+    <diagram name="Standard IT Maintenance Workflow" id="standard">
+        <mxGraphModel dx="824" dy="779" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1200" pageHeight="800" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="start" value="Quarterly IT Maintenance Plan&#xa;&#xa;Responsible: IT Supervisor" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#4472C4;fontColor=#ffffff;strokeColor=#2c5aa0;fontSize=14;fontStyle=1;" parent="1" vertex="1">
+                    <mxGeometry x="500" y="40" width="200" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="planning" value="Create Maintenance Schedule&lt;br&gt;Sites: HQ, Brewery, Ring Pull, Regional 3-6&lt;br&gt;Timeline: Q1, Q2, Q3, Q4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#4472C4;fontColor=#ffffff;strokeColor=#2c5aa0;fontSize=12;" parent="1" vertex="1">
+                    <mxGeometry x="500" y="130" width="200" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="approval" value="IT Manager&#xa;Approval?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#f39c12;fontColor=#ffffff;strokeColor=#d68910;fontSize=12;fontStyle=1;" parent="1" vertex="1">
+                    <mxGeometry x="550" y="230" width="100" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="split" value="Assign Teams &amp; Execute" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#27ae60;fontColor=#ffffff;strokeColor=#1e8449;fontSize=12;fontStyle=1;" parent="1" vertex="1">
+                    <mxGeometry x="525" y="340" width="150" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="computerBranch" value="💻 Computer Maintenance&#xa;Technical Team A" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#2196F3;fontColor=#ffffff;strokeColor=#1976D2;fontSize=13;fontStyle=1;" parent="1" vertex="1">
+                    <mxGeometry x="200" y="420" width="180" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="networkBranch" value="🌐 Network Maintenance&#xa;Technical Team B" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FF9800;fontColor=#ffffff;strokeColor=#F57C00;fontSize=13;fontStyle=1;" parent="1" vertex="1">
+                    <mxGeometry x="820" y="420" width="180" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="computerTasks" value="Standard Computer Maintenance:&#xa;&#xa;✓ Hardware inspection &amp; cleaning&#xa;✓ Software updates (OS, Office, Drivers)&#xa;✓ Antivirus scan &amp; update&#xa;✓ Disk cleanup &amp; defragmentation&#xa;✓ Registry cleanup&#xa;✓ Performance monitoring&#xa;✓ Backup verification&#xa;✓ License compliance check" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E3F2FD;fontColor=#1976D2;strokeColor=#2196F3;fontSize=11;align=left;" parent="1" vertex="1">
+                    <mxGeometry x="150" y="500" width="280" height="140" as="geometry"/>
+                </mxCell>
+                <mxCell id="networkTasks" value="Standard Network Maintenance:&#xa;&#xa;✓ Router/Switch health check&#xa;✓ Firmware updates&#xa;✓ Cable inspection &amp; testing&#xa;✓ Network performance monitoring&#xa;✓ Security patch updates&#xa;✓ Backup configuration&#xa;✓ UPS battery test&#xa;✓ CCTV system verification" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF3E0;fontColor=#F57C00;strokeColor=#FF9800;fontSize=11;align=left;" parent="1" vertex="1">
+                    <mxGeometry x="770" y="500" width="280" height="140" as="geometry"/>
+                </mxCell>
+                <mxCell id="computerAssets" value="Assets Covered:&#xa;• Desktop Computers&#xa;• Laptops&#xa;• Printers&#xa;• Projectors&#xa;• Monitors" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8f9fa;fontColor=#495057;strokeColor=#dee2e6;fontSize=10;" parent="1" vertex="1">
+                    <mxGeometry x="50" y="520" width="120" height="100" as="geometry"/>
+                </mxCell>
+                <mxCell id="networkAssets" value="Assets Covered:&#xa;• Routers&#xa;• Switches&#xa;• Access Points&#xa;• Servers&#xa;• CCTV Systems&#xa;• UPS Systems" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8f9fa;fontColor=#495057;strokeColor=#dee2e6;fontSize=10;" parent="1" vertex="1">
+                    <mxGeometry x="1030" y="520" width="120" height="120" as="geometry"/>
+                </mxCell>
+                <mxCell id="computerDoc" value="📋 Document Results&#xa;&#xa;• Maintenance checklist&#xa;• Issues found&#xa;• Actions taken&#xa;• Recommendations" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8F5E8;fontColor=#2E7D32;strokeColor=#4CAF50;fontSize=11;" parent="1" vertex="1">
+                    <mxGeometry x="200" y="670" width="180" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="networkDoc" value="📋 Document Results&#xa;&#xa;• Maintenance checklist&#xa;• Issues found&#xa;• Actions taken&#xa;• Recommendations" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8F5E8;fontColor=#2E7D32;strokeColor=#4CAF50;fontSize=11;" parent="1" vertex="1">
+                    <mxGeometry x="820" y="670" width="180" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="review" value="IT Admin Review&#xa;&amp; Consolidation" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#9C27B0;fontColor=#ffffff;strokeColor=#7B1FA2;fontSize=12;fontStyle=1;" parent="1" vertex="1">
+                    <mxGeometry x="525" y="680" width="150" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="finalReport" value="Quarterly Maintenance Report&lt;br&gt;Submit to IT Manager&lt;br&gt;Archive for compliance" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#795548;fontColor=#ffffff;strokeColor=#5D4037;fontSize=12;" parent="1" vertex="1">
+                    <mxGeometry x="525" y="770" width="150" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="loopBack" value="🔄 Next Quarter" style="curved=1;endArrow=classic;html=1;rounded=0;strokeWidth=2;strokeColor=#e74c3c;dashed=1;" parent="1" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="700" y="800" as="sourcePoint"/>
+                        <mxPoint x="750" y="360" as="targetPoint"/>
+                        <Array as="points">
+                            <mxPoint x="800" y="750"/>
+                            <mxPoint x="850" y="600"/>
+                            <mxPoint x="850" y="400"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="arrow1" value="" style="endArrow=classic;html=1;strokeWidth=2;strokeColor=#2c5aa0;" parent="1" source="start" target="planning" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="600" y="100" as="sourcePoint"/>
+                        <mxPoint x="600" y="130" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="arrow2" value="" style="endArrow=classic;html=1;strokeWidth=2;strokeColor=#2c5aa0;" parent="1" source="planning" target="approval" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="600" y="200" as="sourcePoint"/>
+                        <mxPoint x="600" y="230" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="arrow3" value="Approved" style="endArrow=classic;html=1;strokeWidth=2;strokeColor=#27ae60;" parent="1" source="approval" target="split" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="600" y="310" as="sourcePoint"/>
+                        <mxPoint x="600" y="340" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="arrow4" value="" style="endArrow=classic;html=1;strokeWidth=2;strokeColor=#2196F3;" parent="1" source="split" target="computerBranch" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="550" y="380" as="sourcePoint"/>
+                        <mxPoint x="350" y="420" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="arrow5" value="" style="endArrow=classic;html=1;strokeWidth=2;strokeColor=#FF9800;" parent="1" source="split" target="networkBranch" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="650" y="380" as="sourcePoint"/>
+                        <mxPoint x="850" y="420" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="arrow6" value="" style="endArrow=classic;html=1;strokeWidth=2;strokeColor=#2196F3;" parent="1" source="computerBranch" target="computerTasks" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="290" y="470" as="sourcePoint"/>
+                        <mxPoint x="290" y="500" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="arrow7" value="" style="endArrow=classic;html=1;strokeWidth=2;strokeColor=#FF9800;" parent="1" source="networkBranch" target="networkTasks" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="910" y="470" as="sourcePoint"/>
+                        <mxPoint x="910" y="500" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="arrow8" value="" style="endArrow=classic;html=1;strokeWidth=2;strokeColor=#4CAF50;" parent="1" source="computerTasks" target="computerDoc" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="290" y="640" as="sourcePoint"/>
+                        <mxPoint x="290" y="670" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="arrow9" value="" style="endArrow=classic;html=1;strokeWidth=2;strokeColor=#4CAF50;" parent="1" source="networkTasks" target="networkDoc" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="910" y="640" as="sourcePoint"/>
+                        <mxPoint x="910" y="670" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="arrow10" value="" style="endArrow=classic;html=1;strokeWidth=2;strokeColor=#9C27B0;" parent="1" source="computerDoc" target="review" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="380" y="710" as="sourcePoint"/>
+                        <mxPoint x="525" y="710" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="arrow11" value="" style="endArrow=classic;html=1;strokeWidth=2;strokeColor=#9C27B0;" parent="1" source="networkDoc" target="review" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="820" y="710" as="sourcePoint"/>
+                        <mxPoint x="675" y="710" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="arrow12" value="" style="endArrow=classic;html=1;strokeWidth=2;strokeColor=#795548;" parent="1" source="review" target="finalReport" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="600" y="740" as="sourcePoint"/>
+                        <mxPoint x="600" y="770" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="rejectArrow" value="Rejected" style="curved=1;endArrow=classic;html=1;strokeWidth=2;strokeColor=#e74c3c;dashed=1;" parent="1" source="approval" target="planning" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="550" y="270" as="sourcePoint"/>
+                        <mxPoint x="500" y="200" as="targetPoint"/>
+                        <Array as="points">
+                            <mxPoint x="480" y="250"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>
