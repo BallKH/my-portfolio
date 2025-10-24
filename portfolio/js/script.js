@@ -322,22 +322,25 @@ async function sendMessage() {
     chatSend.disabled = true;
     
     try {
+        console.log('Sending message:', message);
         const response = await fetch('/api/sendMessage', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ message })
         });
         
+        console.log('Response status:', response.status);
         const result = await response.json();
+        console.log('Response result:', result);
         
         if (response.ok && result.success) {
             addMessage('Message sent successfully!', false);
         } else {
-            throw new Error(result.error || 'Failed to send');
+            addMessage(`Error: ${result.error || 'Unknown error'}`, false);
         }
     } catch (error) {
         console.error('Send error:', error);
-        addMessage('Failed to send message. Please try again.', false);
+        addMessage(`Network error: ${error.message}`, false);
     }
     
     chatSend.disabled = false;
