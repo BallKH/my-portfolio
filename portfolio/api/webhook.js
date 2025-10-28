@@ -1,24 +1,36 @@
+// Import the same storage used by simpleReply
+let messages = [];
+
 export default async function handler(req, res) {
     if (req.method !== 'POST') {
         return res.status(405).json({ error: 'Method not allowed' });
     }
 
     try {
+        console.log('Webhook received:', JSON.stringify(req.body, null, 2));
         const { message } = req.body;
         
         if (message && message.text && message.reply_to_message) {
             const originalText = message.reply_to_message.text;
+            console.log('Reply to message:', originalText);
+            
             if (originalText && originalText.includes('Portfolio Contact:')) {
                 const replyText = message.text;
                 
-                // Add reply using simpleReply API
-                const response = await fetch(`${req.headers.origin || 'https://yourdomain.com'}/api/simpleReply`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message: replyText })
-                });
+                // Add reply directly to storage
+                const newMessage = {
+                    id: Date.now(),
+                    text: replyText,
+                    timestamp: Date.now()
+                };
                 
-                console.log('Reply added via simpleReply:', replyText);
+                // Use global storage like simpleReply
+                if (!global.webhookMessages) {
+                    global.webhookMessages = [];
+                }
+                global.webhookMessages.push(newMessage);
+                
+                console.log('Reply added to webhook storage:', replyText);
             }
         }
 

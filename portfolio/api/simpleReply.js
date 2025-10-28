@@ -23,11 +23,17 @@ export default function handler(req, res) {
 
     if (req.method === 'GET') {
         const { lastMessageId = 0 } = req.query;
-        console.log('GET request - lastMessageId:', lastMessageId, 'total messages:', messages.length);
-        console.log('All messages:', messages);
-        const filtered = messages.filter(msg => msg.id > parseInt(lastMessageId));
+        
+        // Combine messages from both sources
+        const webhookMessages = global.webhookMessages || [];
+        const allMessages = [...messages, ...webhookMessages];
+        
+        console.log('GET request - lastMessageId:', lastMessageId);
+        console.log('Local messages:', messages.length, 'Webhook messages:', webhookMessages.length);
+        
+        const filtered = allMessages.filter(msg => msg.id > parseInt(lastMessageId));
         console.log('Filtered messages:', filtered);
-        return res.json({ messages: filtered, total: messages.length });
+        return res.json({ messages: filtered, total: allMessages.length });
     }
 
     res.status(405).json({ error: 'Method not allowed' });
