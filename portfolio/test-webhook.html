@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Webhook Reply</title>
+</head>
+<body>
+    <h1>Test Webhook Reply</h1>
+    
+    <button onclick="addHi()">Add "Hi" Reply</button>
+    <button onclick="checkMessages()">Check All Messages</button>
+    
+    <div id="result" style="margin-top: 20px; padding: 10px; background: #f0f0f0; white-space: pre-wrap;"></div>
+
+    <script>
+        async function addHi() {
+            try {
+                const response = await fetch('/api/addReply', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: 'Hi' })
+                });
+                
+                const result = await response.json();
+                document.getElementById('result').textContent = JSON.stringify(result, null, 2);
+            } catch (error) {
+                document.getElementById('result').textContent = 'Error: ' + error.message;
+            }
+        }
+        
+        async function checkMessages() {
+            try {
+                const response = await fetch('/api/simpleReply?lastMessageId=0');
+                const result = await response.json();
+                document.getElementById('result').textContent = JSON.stringify(result, null, 2);
+            } catch (error) {
+                document.getElementById('result').textContent = 'Error: ' + error.message;
+            }
+        }
+    </script>
+</body>
+</html>
