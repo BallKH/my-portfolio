@@ -268,20 +268,28 @@ const chatInput = document.getElementById('chat-input');
 const chatSend = document.getElementById('chat-send');
 const chatMessages = document.getElementById('chat-messages');
 
+let lastMessageId = 0;
+let pollInterval;
+
 chatButton.addEventListener('click', () => {
     chatPopup.classList.toggle('show');
     if (chatPopup.classList.contains('show')) {
         chatInput.focus();
+        startPolling();
+    } else {
+        stopPolling();
     }
 });
 
 chatClose.addEventListener('click', () => {
     chatPopup.classList.remove('show');
+    stopPolling();
 });
 
 document.addEventListener('click', (e) => {
     if (!document.getElementById('chat-widget').contains(e.target)) {
         chatPopup.classList.remove('show');
+        stopPolling();
     }
 });
 
@@ -331,5 +339,34 @@ async function sendMessage() {
     
     chatSend.disabled = false;
     chatSend.textContent = 'Send';
+}
+
+async function pollMessages() {
+    try {
+        const response = await fetch(`/api/getMessages?lastMessageId=${lastMessageId}`);
+        const result = await response.json();
+        
+        if (result.messages && result.messages.length > 0) {
+            result.messages.forEach(msg => {
+                addMessage(msg.text, false);
+                lastMessageId = Math.max(lastMessageId, msg.id);
+            });
+        }
+    } catch (error) {
+        console.error('Polling error:', error);
+    }
+}
+
+function startPolling() {
+    if (!pollInterval) {
+        pollInterval = setInterval(pollMessages, 3000);
+    }
+}
+
+function stopPolling() {
+    if (pollInterval) {
+        clearInterval(pollInterval);
+        pollInterval = null;
+    }
 }
 

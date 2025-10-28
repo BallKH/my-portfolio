@@ -1,39 +1,28 @@
-// Global in-memory storage (works across Vercel functions)
-global.messageStore = global.messageStore || new Map();
+// Simple global message storage for replies
+global.replyMessages = global.replyMessages || [];
 
-export function getMessages(sessionId) {
+export function getReplyMessages(lastId = 0) {
     try {
-        return global.messageStore.get(sessionId) || [];
+        return global.replyMessages.filter(msg => msg.id > lastId);
     } catch (error) {
         console.error('Error reading messages:', error);
         return [];
     }
 }
 
-export function addMessage(sessionId, message) {
+export function addReplyMessage(text) {
     try {
-        if (!global.messageStore.has(sessionId)) {
-            global.messageStore.set(sessionId, []);
-        }
+        const message = {
+            id: Date.now(),
+            text,
+            timestamp: Date.now()
+        };
         
-        global.messageStore.get(sessionId).push(message);
-        console.log('Message added to session:', sessionId, message);
+        global.replyMessages.push(message);
+        console.log('Reply message added:', message);
         return true;
     } catch (error) {
         console.error('Error storing message:', error);
         return false;
-    }
-}
-
-export function getAllSessions() {
-    try {
-        const sessions = {};
-        for (const [sessionId, messages] of global.messageStore.entries()) {
-            sessions[sessionId] = messages;
-        }
-        return sessions;
-    } catch (error) {
-        console.error('Error reading all sessions:', error);
-        return {};
     }
 }
