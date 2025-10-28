@@ -346,14 +346,20 @@ function startChat() {
         return;
     }
     
-    visitorName = name;
-    const cleanName = name.toLowerCase().replace(/[^a-z0-9]/g, '');
-    sessionId = `session_${cleanName}`;
-    chatStarted = true;
+    // Set global variables
+    window.visitorName = name;
+    window.sessionId = `session_${name.toLowerCase().replace(/[^a-z0-9]/g, '')}`;
+    window.chatStarted = true;
+    
+    visitorName = window.visitorName;
+    sessionId = window.sessionId;
+    chatStarted = window.chatStarted;
+    
+    console.log('Chat started:', { visitorName, sessionId, chatStarted });
     
     // Clear name form and show chat interface
     chatMessages.innerHTML = '';
-    addMessage(`Hello ${visitorName}! You're now connected to support. How can I help you today?`, false);
+    addMessage(`Hello ${visitorName}! Session: ${sessionId}`, false);
     
     // Enable chat input
     chatInput.disabled = false;
@@ -363,9 +369,6 @@ function startChat() {
     
     // Start polling for replies
     startPolling();
-    
-    // Notify Telegram about new visitor
-    notifyTelegram(sessionId, visitorName, 'New visitor connected');
 }
 
 function addMessage(text, isUser = false) {
