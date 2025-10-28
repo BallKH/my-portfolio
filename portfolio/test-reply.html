@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Reply System</title>
+</head>
+<body>
+    <h1>Test Reply System</h1>
+    
+    <div>
+        <h3>Add Test Reply</h3>
+        <input type="text" id="sessionId" placeholder="session_1761633384041_wbn90onel" style="width: 300px;">
+        <input type="text" id="message" placeholder="Hello, How can i help you?" style="width: 300px;">
+        <button onclick="addReply()">Add Reply</button>
+    </div>
+    
+    <div>
+        <h3>Check Messages</h3>
+        <input type="text" id="checkSessionId" placeholder="session_1761633384041_wbn90onel" style="width: 300px;">
+        <button onclick="checkMessages()">Check Messages</button>
+    </div>
+    
+    <div>
+        <h3>View All Sessions</h3>
+        <button onclick="viewSessions()">View All Sessions</button>
+    </div>
+    
+    <div id="result" style="margin-top: 20px; padding: 10px; background: #f0f0f0;"></div>
+
+    <script>
+        async function addReply() {
+            const sessionId = document.getElementById('sessionId').value;
+            const message = document.getElementById('message').value;
+            
+            try {
+                const response = await fetch('/api/testReply', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ sessionId, message })
+                });
+                
+                const result = await response.json();
+                document.getElementById('result').innerHTML = JSON.stringify(result, null, 2);
+            } catch (error) {
+                document.getElementById('result').innerHTML = 'Error: ' + error.message;
+            }
+        }
+        
+        async function checkMessages() {
+            const sessionId = document.getElementById('checkSessionId').value;
+            
+            try {
+                const response = await fetch(`/api/getMessages?sessionId=${sessionId}&lastMessageId=0`);
+                const result = await response.json();
+                document.getElementById('result').innerHTML = JSON.stringify(result, null, 2);
+            } catch (error) {
+                document.getElementById('result').innerHTML = 'Error: ' + error.message;
+            }
+        }
+        
+        async function viewSessions() {
+            try {
+                const response = await fetch('/api/testReply');
+                const result = await response.json();
+                document.getElementById('result').innerHTML = JSON.stringify(result, null, 2);
+            } catch (error) {
+                document.getElementById('result').innerHTML = 'Error: ' + error.message;
+            }
+        }
+    </script>
+</body>
+</html>

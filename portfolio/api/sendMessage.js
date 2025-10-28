@@ -1,5 +1,4 @@
-// In-memory message storage
-const messageStore = new Map();
+import { addMessage } from './messageStore.js';
 
 export default async function handler(req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -21,10 +20,7 @@ export default async function handler(req, res) {
     }
 
     // Store user message
-    if (!messageStore.has(sessionId)) {
-        messageStore.set(sessionId, []);
-    }
-    messageStore.get(sessionId).push({
+    addMessage(sessionId, {
         id: Date.now(),
         text: message,
         from: 'user',
@@ -55,6 +51,3 @@ export default async function handler(req, res) {
         return res.status(500).json({ error: `Internal server error: ${error.message}` });
     }
 }
-
-// Export message store for other APIs
-export { messageStore };

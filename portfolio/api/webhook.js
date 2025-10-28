@@ -1,4 +1,4 @@
-import { messageStore } from './sendMessage.js';
+import { addMessage } from './messageStore.js';
 
 export default async function handler(req, res) {
     if (req.method !== 'POST') {
@@ -6,9 +6,12 @@ export default async function handler(req, res) {
     }
 
     try {
+        console.log('Webhook received:', JSON.stringify(req.body, null, 2));
         const { message } = req.body;
         
         if (message && message.text) {
+            console.log('Processing message:', message.text);
+            
             // Handle /reply command format: /reply <session_id> <message>
             const replyMatch = message.text.match(/^\/reply\s+(\S+)\s+(.+)/);
             
@@ -16,17 +19,17 @@ export default async function handler(req, res) {
                 const sessionId = replyMatch[1];
                 const replyText = replyMatch[2];
                 
-                // Store reply in shared message store
-                if (!messageStore.has(sessionId)) {
-                    messageStore.set(sessionId, []);
-                }
+                console.log('Reply command found:', { sessionId, replyText });
                 
-                messageStore.get(sessionId).push({
+                const newMessage = {
                     id: Date.now(),
                     text: replyText,
                     from: 'admin',
                     timestamp: Date.now()
-                });
+                };
+                
+                const success = addMessage(sessionId, newMessage);
+                console.log('Message stored for session:', sessionId, success ? 'SUCCESS' : 'FAILED');
             }
             // Fallback: Handle reply-to messages (legacy support)
             else if (message.reply_to_message) {
@@ -37,16 +40,17 @@ export default async function handler(req, res) {
                     const sessionId = sessionMatch[1];
                     const replyText = message.text;
                     
-                    if (!messageStore.has(sessionId)) {
-                        messageStore.set(sessionId, []);
-                    }
+                    console.log('Reply-to message found:', { sessionId, replyText });
                     
-                    messageStore.get(sessionId).push({
+                    const newMessage = {
                         id: Date.now(),
                         text: replyText,
                         from: 'admin',
                         timestamp: Date.now()
-                    });
+                    };
+                    
+                    const success = addMessage(sessionId, newMessage);
+                    console.log('Reply-to message stored for session:', sessionId, success ? 'SUCCESS' : 'FAILED');
                 }
             }
         }

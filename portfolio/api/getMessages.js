@@ -1,4 +1,4 @@
-import { messageStore } from './sendMessage.js';
+import { getMessages } from './messageStore.js';
 
 export default async function handler(req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -15,7 +15,7 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: 'Session ID required' });
     }
 
-    const sessionMessages = messageStore.get(sessionId) || [];
+    const sessionMessages = getMessages(sessionId);
     const newMessages = sessionMessages.filter(msg => msg.id > parseInt(lastMessageId));
 
     res.json({ messages: newMessages });
