@@ -24,11 +24,11 @@ export default async function handler(req, res) {
                     timestamp: Date.now()
                 };
                 
-                // Use global storage like simpleReply
-                if (!global.webhookMessages) {
-                    global.webhookMessages = [];
+                // Use same global storage as simpleReply
+                if (!global.allMessages) {
+                    global.allMessages = [];
                 }
-                global.webhookMessages.push(newMessage);
+                global.allMessages.push(newMessage);
                 
                 console.log('Reply added to webhook storage:', replyText);
             }

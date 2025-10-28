@@ -10,9 +10,9 @@ export default function handler(req, res) {
     if (req.method === 'POST') {
         const { message } = req.body;
         
-        // Add to webhook storage
-        if (!global.webhookMessages) {
-            global.webhookMessages = [];
+        // Use same global storage as simpleReply
+        if (!global.allMessages) {
+            global.allMessages = [];
         }
         
         const newMessage = {
@@ -21,9 +21,10 @@ export default function handler(req, res) {
             timestamp: Date.now()
         };
         
-        global.webhookMessages.push(newMessage);
+        global.allMessages.push(newMessage);
+        console.log('Reply added to global storage:', newMessage);
         
-        return res.json({ success: true, message: 'Reply added to webhook storage' });
+        return res.json({ success: true, message: 'Reply added to global storage' });
     }
 
     res.status(405).json({ error: 'Method not allowed' });

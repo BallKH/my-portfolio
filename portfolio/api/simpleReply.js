@@ -1,5 +1,7 @@
-// Simple in-function storage for testing
-let messages = [];
+// Use global storage for persistence across function calls
+if (!global.allMessages) {
+    global.allMessages = [];
+}
 
 export default function handler(req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -17,23 +19,20 @@ export default function handler(req, res) {
             text: message || 'Test reply',
             timestamp: Date.now()
         };
-        messages.push(newMessage);
-        return res.json({ success: true, message: 'Reply added', total: messages.length });
+        global.allMessages.push(newMessage);
+        console.log('Message added to global storage:', newMessage);
+        return res.json({ success: true, message: 'Reply added', total: global.allMessages.length });
     }
 
     if (req.method === 'GET') {
         const { lastMessageId = 0 } = req.query;
         
-        // Combine messages from both sources
-        const webhookMessages = global.webhookMessages || [];
-        const allMessages = [...messages, ...webhookMessages];
-        
         console.log('GET request - lastMessageId:', lastMessageId);
-        console.log('Local messages:', messages.length, 'Webhook messages:', webhookMessages.length);
+        console.log('Total messages in global storage:', global.allMessages.length);
         
-        const filtered = allMessages.filter(msg => msg.id > parseInt(lastMessageId));
+        const filtered = global.allMessages.filter(msg => msg.id > parseInt(lastMessageId));
         console.log('Filtered messages:', filtered);
-        return res.json({ messages: filtered, total: allMessages.length });
+        return res.json({ messages: filtered, total: global.allMessages.length });
     }
 
     res.status(405).json({ error: 'Method not allowed' });
