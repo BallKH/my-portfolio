@@ -343,7 +343,7 @@ async function sendMessage() {
 
 async function pollMessages() {
     try {
-        const response = await fetch(`/api/simpleReply?lastMessageId=${lastMessageId}`);
+        const response = await fetch(`/api/chat?lastMessageId=${lastMessageId}`);
         const result = await response.json();
         
         if (result.messages && result.messages.length > 0) {

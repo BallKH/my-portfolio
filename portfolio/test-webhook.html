@@ -14,7 +14,7 @@
     <script>
         async function addHi() {
             try {
-                const response = await fetch('/api/addReply', {
+                const response = await fetch('/api/chat', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ message: 'Hi' })
@@ -29,7 +29,7 @@
         
         async function checkMessages() {
             try {
-                const response = await fetch('/api/simpleReply?lastMessageId=0');
+                const response = await fetch('/api/chat?lastMessageId=0');
                 const result = await response.json();
                 document.getElementById('result').textContent = JSON.stringify(result, null, 2);
             } catch (error) {
