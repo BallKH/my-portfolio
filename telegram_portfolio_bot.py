@@ -10,12 +10,12 @@ logger = logging.getLogger(__name__)
 
 # Bot configuration
 BOT_TOKEN = "7521339424:AAHVUtusUfEVGln14aEzpZI9122RT312Nc8"
-PORTFOLIO_API_URL = "http://localhost:3000/api"  # Your portfolio API
+PORTFOLIO_API_URL = "http://localhost:3000/api"
 
 class PortfolioTelegramBot:
     def __init__(self):
         self.application = Application.builder().token(BOT_TOKEN).build()
-        self.session_mapping = {}  # Simple ID -> Original ID mapping
+        self.session_mapping = {}
         self.user_counter = 1
         self.setup_handlers()
     
@@ -24,18 +24,29 @@ class PortfolioTelegramBot:
         self.application.add_handler(CommandHandler("reply", self.reply))
         self.application.add_handler(CommandHandler("check", self.check_messages))
         self.application.add_handler(CommandHandler("sessions", self.list_sessions))
-        self.application.add_handler(CommandHandler("notify", self.test_notification))
+        self.application.add_handler(CommandHandler("newvisitor", self.handle_new_visitor))
     
     def get_simple_session_id(self, original_session_id, visitor_name="Anonymous"):
-        """Map complex session ID to simple one like User1, User2"""
+        """Map session ID to name-based ID like session_john, session_mary"""
         # Check if already mapped
         for simple_id, data in self.session_mapping.items():
             if data["original_id"] == original_session_id:
                 return simple_id
         
-        # Create new mapping
-        simple_id = f"User{self.user_counter}"
-        self.user_counter += 1
+        # Create name-based session ID
+        clean_name = visitor_name.lower().replace(' ', '').replace('-', '').replace('_', '')[:10]
+        if not clean_name or clean_name == 'anonymous':
+            clean_name = f"user{self.user_counter}"
+            self.user_counter += 1
+        
+        simple_id = f"session_{clean_name}"
+        
+        # Handle duplicate names
+        counter = 1
+        original_simple_id = simple_id
+        while simple_id in self.session_mapping:
+            counter += 1
+            simple_id = f"{original_simple_id}{counter}"
         
         self.session_mapping[simple_id] = {
             "original_id": original_session_id,
@@ -53,13 +64,13 @@ class PortfolioTelegramBot:
         await update.message.reply_text(
             "🤖 Portfolio Support Bot\n\n"
             "Commands:\n"
-            "📝 /reply <User_ID> <text> - Send reply to visitor\n"
-            "📋 /check <User_ID> - Check session messages\n"
+            "📝 /reply <session_name> <text> - Send reply to visitor\n"
+            "📋 /check <session_name> - Check session messages\n"
             "📊 /sessions - List active sessions\n"
-            "🔔 /notify <original_session> <name> <message> - Test notification\n\n"
+            "👤 /newvisitor <name> <message> - Simulate new visitor\n\n"
             "Examples:\n"
-            "/reply User1 Hi\n"
-            "/reply User2 Hello, how can I help you?"
+            "/reply session_john Hi\n"
+            "/reply session_mary Hello, how can I help you?"
         )
     
     async def reply(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -68,9 +79,9 @@ class PortfolioTelegramBot:
         
         if len(parts) < 3:
             await update.message.reply_text(
-                "❌ Usage: /reply <User_ID> <text>\n"
-                "Example: /reply User1 Hi\n"
-                "Example: /reply User2 Hello, how can I help?"
+                "❌ Usage: /reply <session_name> <text>\n"
+                "Example: /reply session_john Hi\n"
+                "Example: /reply session_mary Hello, how can I help?"
             )
             return
         
@@ -105,8 +116,8 @@ class PortfolioTelegramBot:
     async def check_messages(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         if len(context.args) < 1:
             await update.message.reply_text(
-                "❌ Usage: /check <User_ID>\n"
-                "Example: /check User1"
+                "❌ Usage: /check <session_name>\n"
+                "Example: /check session_john"
             )
             return
         
@@ -142,21 +153,23 @@ class PortfolioTelegramBot:
             timestamp = data.get('timestamp', 'Unknown')
             session_list += f"👤 {visitor_name}\n   📱 ID: {simple_id}\n   ⏰ Time: {timestamp[:16]}\n\n"
         
-        session_list += "💡 Reply with: /reply <ID> <message>"
+        session_list += "💡 Reply with: /reply session_name <message>"
         await update.message.reply_text(session_list)
     
-    async def test_notification(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        """Test notification system - /notify <original_session> <name> <message>"""
-        if len(context.args) < 3:
+    async def handle_new_visitor(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        """Simulate new visitor - /newvisitor <name> <message>"""
+        if len(context.args) < 2:
             await update.message.reply_text(
-                "Usage: /notify <original_session> <name> <message>\n"
-                "Example: /notify session_123 John Hello"
+                "Usage: /newvisitor <name> <message>\n"
+                "Example: /newvisitor John Hello, I need help"
             )
             return
         
-        original_session = context.args[0]
-        visitor_name = context.args[1]
-        message = " ".join(context.args[2:])
+        visitor_name = context.args[0]
+        message = " ".join(context.args[1:])
+        
+        # Generate original session ID (simulate)
+        original_session = f"session_{int(datetime.now().timestamp())}"
         
         # Create simple session ID
         simple_id = self.get_simple_session_id(original_session, visitor_name)
