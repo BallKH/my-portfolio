@@ -377,7 +377,10 @@ function addMessage(text, isUser = false) {
 }
 
 async function sendMessage() {
-    if (!chatStarted) return;
+    if (!chatStarted) {
+        alert('Please enter your name first!');
+        return;
+    }
     
     const message = chatInput.value.trim();
     if (!message) return;
@@ -388,26 +391,30 @@ async function sendMessage() {
     chatSend.textContent = 'Sending...';
     chatSend.disabled = true;
     
+    // Debug log
+    console.log('Sending message:', { message, sessionId, visitorName });
+    
     try {
         const response = await fetch('/api/sendMessage', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ 
-                message,
-                sessionId,
-                visitorName
+                message: message,
+                sessionId: sessionId,
+                visitorName: visitorName
             })
         });
         
         const result = await response.json();
+        console.log('API Response:', result);
         
         if (response.ok && result.success) {
-            // Notify Telegram about new message
-            notifyTelegram(sessionId, visitorName, message);
+            addMessage('Message sent! ✅', false);
         } else {
             addMessage(`Error: ${result.error || 'Failed to send'}`, false);
         }
     } catch (error) {
+        console.error('Send error:', error);
         addMessage(`Network error: ${error.message}`, false);
     }
     
