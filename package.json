@@ -1,0 +1,15 @@
+{
+  "type": "module",
+  "name": "portfolio-chat-system",
+  "version": "1.0.0",
+  "description": "Portfolio website with Telegram bot integration",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vercel dev",
+    "build": "vercel build",
+    "deploy": "vercel --prod"
+  },
+  "keywords": ["portfolio", "chat", "telegram", "vercel"],
+  "author": "Ponlork CHEA",
+  "license": "MIT"
+}
