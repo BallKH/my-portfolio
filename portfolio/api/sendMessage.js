@@ -11,7 +11,7 @@ export default async function handler(req, res) {
         return res.status(405).json({ error: 'Method not allowed' });
     }
 
-    const { message } = req.body;
+    const { message, sessionId, visitorName } = req.body;
     
     if (!message) {
         return res.status(400).json({ error: 'Message is required' });
@@ -20,13 +20,18 @@ export default async function handler(req, res) {
     const BOT_TOKEN = '7521339424:AAHVUtusUfEVGln14aEzpZI9122RT312Nc8';
     const CHAT_ID = '489679144';
 
+    // Create session-based notification
+    const notification = sessionId && visitorName ? 
+        `💬 New message from ${visitorName}\n📱 Session: ${sessionId}\n💭 Message: ${message}\n\nReply with: /reply ${sessionId} <your_message>` :
+        `Portfolio Contact: ${message}`;
+
     try {
         const response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 chat_id: CHAT_ID,
-                text: `Portfolio Contact: ${message}`
+                text: notification
             })
         });
 
