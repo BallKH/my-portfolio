@@ -23,7 +23,10 @@ export default function handler(req, res) {
 
     if (req.method === 'GET') {
         const { lastMessageId = 0 } = req.query;
+        console.log('GET request - lastMessageId:', lastMessageId, 'total messages:', messages.length);
+        console.log('All messages:', messages);
         const filtered = messages.filter(msg => msg.id > parseInt(lastMessageId));
+        console.log('Filtered messages:', filtered);
         return res.json({ messages: filtered, total: messages.length });
     }
 
