@@ -2,6 +2,7 @@ import logging
 import requests
 from telegram import Update
 from telegram.ext import Application, CommandHandler, ContextTypes
+from datetime import datetime
 
 # Configure logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
@@ -14,6 +15,8 @@ PORTFOLIO_API_URL = "http://localhost:3000/api"  # Your portfolio API
 class PortfolioTelegramBot:
     def __init__(self):
         self.application = Application.builder().token(BOT_TOKEN).build()
+        self.session_mapping = {}  # Simple ID -> Original ID mapping
+        self.user_counter = 1
         self.setup_handlers()
     
     def setup_handlers(self):
@@ -21,16 +24,42 @@ class PortfolioTelegramBot:
         self.application.add_handler(CommandHandler("reply", self.reply))
         self.application.add_handler(CommandHandler("check", self.check_messages))
         self.application.add_handler(CommandHandler("sessions", self.list_sessions))
+        self.application.add_handler(CommandHandler("notify", self.test_notification))
+    
+    def get_simple_session_id(self, original_session_id, visitor_name="Anonymous"):
+        """Map complex session ID to simple one like User1, User2"""
+        # Check if already mapped
+        for simple_id, data in self.session_mapping.items():
+            if data["original_id"] == original_session_id:
+                return simple_id
+        
+        # Create new mapping
+        simple_id = f"User{self.user_counter}"
+        self.user_counter += 1
+        
+        self.session_mapping[simple_id] = {
+            "original_id": original_session_id,
+            "visitor_name": visitor_name,
+            "timestamp": datetime.now().isoformat()
+        }
+        
+        return simple_id
+    
+    def get_original_session_id(self, simple_id):
+        """Get original session ID from simple ID"""
+        return self.session_mapping.get(simple_id, {}).get("original_id")
     
     async def start(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text(
             "🤖 Portfolio Support Bot\n\n"
             "Commands:\n"
-            "📝 /reply <session_ID> <text> - Send reply to visitor\n"
-            "📋 /check <session_ID> - Check session messages\n"
-            "📊 /sessions - List active sessions\n\n"
-            "Example:\n"
-            "/reply session_1761633611239_lubwb8pm9 Hi"
+            "📝 /reply <User_ID> <text> - Send reply to visitor\n"
+            "📋 /check <User_ID> - Check session messages\n"
+            "📊 /sessions - List active sessions\n"
+            "🔔 /notify <original_session> <name> <message> - Test notification\n\n"
+            "Examples:\n"
+            "/reply User1 Hi\n"
+            "/reply User2 Hello, how can I help you?"
         )
     
     async def reply(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -39,57 +68,108 @@ class PortfolioTelegramBot:
         
         if len(parts) < 3:
             await update.message.reply_text(
-                "❌ Usage: /reply <session_ID> <text>\n"
-                "Example: /reply session_1761633611239_lubwb8pm9 Hi"
+                "❌ Usage: /reply <User_ID> <text>\n"
+                "Example: /reply User1 Hi\n"
+                "Example: /reply User2 Hello, how can I help?"
             )
             return
         
-        session_id = parts[1]
+        simple_session_id = parts[1]
         message = parts[2]
         
-        success = await self.send_reply_to_portfolio(session_id, message)
+        # Get original session ID from simple ID
+        original_session_id = self.get_original_session_id(simple_session_id)
+        
+        if not original_session_id:
+            await update.message.reply_text(
+                f"❌ Session {simple_session_id} not found\n"
+                "Use /sessions to see active sessions"
+            )
+            return
+        
+        success = await self.send_reply_to_portfolio(original_session_id, message)
         
         if success:
+            visitor_name = self.session_mapping.get(simple_session_id, {}).get('visitor_name', 'Unknown')
             await update.message.reply_text(
-                f"✅ Reply sent successfully!\n"
-                f"📱 Session: {session_id}\n"
+                f"✅ Reply sent to {visitor_name}!\n"
+                f"👤 Session: {simple_session_id}\n"
                 f"💬 Message: {message}"
             )
         else:
             await update.message.reply_text(
-                f"❌ Failed to send reply to {session_id}\n"
-                "Check if session exists"
+                f"❌ Failed to send reply to {simple_session_id}\n"
+                "Check if session is still active"
             )
     
     async def check_messages(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         if len(context.args) < 1:
             await update.message.reply_text(
-                "❌ Usage: /check <session_ID>\n"
-                "Example: /check session_1761633611239_lubwb8pm9"
+                "❌ Usage: /check <User_ID>\n"
+                "Example: /check User1"
             )
             return
         
-        session_id = context.args[0]
-        messages = await self.get_session_messages(session_id)
+        simple_session_id = context.args[0]
+        original_session_id = self.get_original_session_id(simple_session_id)
+        
+        if not original_session_id:
+            await update.message.reply_text(f"❌ Session {simple_session_id} not found")
+            return
+        
+        messages = await self.get_session_messages(original_session_id)
         
         if messages:
-            message_list = "📋 Messages:\n\n"
+            visitor_name = self.session_mapping.get(simple_session_id, {}).get('visitor_name', 'Unknown')
+            message_list = f"📋 Messages from {visitor_name} ({simple_session_id}):\n\n"
             for msg in messages.get('messages', []):
-                timestamp = msg.get('timestamp', 0)
                 text = msg.get('text', '')
-                message_list += f"• {text} (ID: {msg.get('id', 'N/A')})\n"
+                message_list += f"• {text}\n"
             
             message_list += f"\n📊 Total: {messages.get('total', 0)} messages"
             await update.message.reply_text(message_list)
         else:
-            await update.message.reply_text(f"❌ No messages found for {session_id}")
+            await update.message.reply_text(f"❌ No messages found for {simple_session_id}")
     
     async def list_sessions(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        await update.message.reply_text(
-            "📊 Active Sessions:\n\n"
-            "Use your portfolio admin panel to view active sessions,\n"
-            "then use /reply <session_ID> <text> to respond"
+        if not self.session_mapping:
+            await update.message.reply_text("📭 No active sessions")
+            return
+        
+        session_list = "📊 Active Sessions:\n\n"
+        for simple_id, data in self.session_mapping.items():
+            visitor_name = data.get('visitor_name', 'Anonymous')
+            timestamp = data.get('timestamp', 'Unknown')
+            session_list += f"👤 {visitor_name}\n   📱 ID: {simple_id}\n   ⏰ Time: {timestamp[:16]}\n\n"
+        
+        session_list += "💡 Reply with: /reply <ID> <message>"
+        await update.message.reply_text(session_list)
+    
+    async def test_notification(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        """Test notification system - /notify <original_session> <name> <message>"""
+        if len(context.args) < 3:
+            await update.message.reply_text(
+                "Usage: /notify <original_session> <name> <message>\n"
+                "Example: /notify session_123 John Hello"
+            )
+            return
+        
+        original_session = context.args[0]
+        visitor_name = context.args[1]
+        message = " ".join(context.args[2:])
+        
+        # Create simple session ID
+        simple_id = self.get_simple_session_id(original_session, visitor_name)
+        
+        # Send notification
+        notification = (
+            f"💬 New message from {visitor_name}\n"
+            f"📱 Session: {simple_id}\n"
+            f"💭 Message: {message}\n\n"
+            f"Reply with: /reply {simple_id} <your_message>"
         )
+        
+        await update.message.reply_text(notification)
     
     async def send_reply_to_portfolio(self, session_id: str, message: str) -> bool:
         try:
