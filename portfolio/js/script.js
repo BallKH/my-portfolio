@@ -269,6 +269,7 @@ const chatSend = document.getElementById('chat-send');
 const chatMessages = document.getElementById('chat-messages');
 
 let sessionId = 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+console.log('Current session ID:', sessionId);
 let lastMessageId = 0;
 let pollInterval;
 

@@ -1,16 +1,9 @@
-// Simple file-based message storage for Vercel
-import fs from 'fs';
-import path from 'path';
-
-const STORAGE_FILE = '/tmp/messages.json';
+// Global in-memory storage (works across Vercel functions)
+global.messageStore = global.messageStore || new Map();
 
 export function getMessages(sessionId) {
     try {
-        if (!fs.existsSync(STORAGE_FILE)) {
-            return [];
-        }
-        const data = JSON.parse(fs.readFileSync(STORAGE_FILE, 'utf8'));
-        return data[sessionId] || [];
+        return global.messageStore.get(sessionId) || [];
     } catch (error) {
         console.error('Error reading messages:', error);
         return [];
@@ -19,17 +12,12 @@ export function getMessages(sessionId) {
 
 export function addMessage(sessionId, message) {
     try {
-        let data = {};
-        if (fs.existsSync(STORAGE_FILE)) {
-            data = JSON.parse(fs.readFileSync(STORAGE_FILE, 'utf8'));
+        if (!global.messageStore.has(sessionId)) {
+            global.messageStore.set(sessionId, []);
         }
         
-        if (!data[sessionId]) {
-            data[sessionId] = [];
-        }
-        
-        data[sessionId].push(message);
-        fs.writeFileSync(STORAGE_FILE, JSON.stringify(data, null, 2));
+        global.messageStore.get(sessionId).push(message);
+        console.log('Message added to session:', sessionId, message);
         return true;
     } catch (error) {
         console.error('Error storing message:', error);
@@ -39,10 +27,11 @@ export function addMessage(sessionId, message) {
 
 export function getAllSessions() {
     try {
-        if (!fs.existsSync(STORAGE_FILE)) {
-            return {};
+        const sessions = {};
+        for (const [sessionId, messages] of global.messageStore.entries()) {
+            sessions[sessionId] = messages;
         }
-        return JSON.parse(fs.readFileSync(STORAGE_FILE, 'utf8'));
+        return sessions;
     } catch (error) {
         console.error('Error reading all sessions:', error);
         return {};
