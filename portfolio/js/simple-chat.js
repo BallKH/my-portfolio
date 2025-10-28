@@ -92,7 +92,7 @@ async function sendMessage() {
     chatSend.textContent = 'Sending...';
     
     try {
-        const response = await fetch('/api/sendMessage', {
+        const response = await fetch('/api/chat?action=send', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({

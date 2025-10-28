@@ -46,7 +46,7 @@
             }
             
             try {
-                const response = await fetch('/api/manualReply', {
+                const response = await fetch('/api/chat?action=reply', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ sessionId, message })
@@ -74,7 +74,7 @@
             }
             
             try {
-                const response = await fetch(`/api/getMessages?sessionId=${sessionId}&lastMessageId=0`);
+                const response = await fetch(`/api/chat?action=get&sessionId=${sessionId}&lastMessageId=0`);
                 const result = await response.json();
                 document.getElementById('result').innerHTML = `<div>Messages for ${sessionId}:\n${JSON.stringify(result, null, 2)}</div>`;
             } catch (error) {
