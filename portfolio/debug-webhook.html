@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Webhook</title>
+</head>
+<body>
+    <h1>Debug Webhook System</h1>
+    
+    <div>
+        <h3>Test Webhook Reply</h3>
+        <input type="text" id="sessionId" placeholder="session_1761633611239_lubwb8pm9" style="width: 300px;">
+        <input type="text" id="message" placeholder="Hello! Thanks for reaching out." style="width: 300px;">
+        <button onclick="testWebhook()">Test Webhook</button>
+    </div>
+    
+    <div>
+        <h3>Check Messages for Session</h3>
+        <input type="text" id="checkSession" placeholder="session_1761633611239_lubwb8pm9" style="width: 300px;">
+        <button onclick="checkMessages()">Check Messages</button>
+    </div>
+    
+    <div id="result" style="margin-top: 20px; padding: 10px; background: #f0f0f0; white-space: pre-wrap;"></div>
+
+    <script>
+        async function testWebhook() {
+            const sessionId = document.getElementById('sessionId').value;
+            const message = document.getElementById('message').value;
+            
+            try {
+                const response = await fetch('/api/debugWebhook', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ sessionId, message })
+                });
+                
+                const result = await response.json();
+                document.getElementById('result').textContent = JSON.stringify(result, null, 2);
+            } catch (error) {
+                document.getElementById('result').textContent = 'Error: ' + error.message;
+            }
+        }
+        
+        async function checkMessages() {
+            const sessionId = document.getElementById('checkSession').value;
+            
+            try {
+                const response = await fetch(`/api/getMessages?sessionId=${sessionId}&lastMessageId=0`);
+                const result = await response.json();
+                document.getElementById('result').textContent = JSON.stringify(result, null, 2);
+            } catch (error) {
+                document.getElementById('result').textContent = 'Error: ' + error.message;
+            }
+        }
+    </script>
+</body>
+</html>
