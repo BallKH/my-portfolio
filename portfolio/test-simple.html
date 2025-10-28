@@ -8,13 +8,14 @@
     
     <button onclick="addTestReply()">Add Test Reply</button>
     <button onclick="checkMessages()">Check Messages</button>
+    <button onclick="testWebChat()">Test Web Chat</button>
     
     <div id="result" style="margin-top: 20px; padding: 10px; background: #f0f0f0;"></div>
 
     <script>
         async function addTestReply() {
             try {
-                const response = await fetch('/api/testReply2', {
+                const response = await fetch('/api/simpleReply', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ message: 'Hello back from Telegram!' })
@@ -29,11 +30,27 @@
         
         async function checkMessages() {
             try {
-                const response = await fetch('/api/getMessages?lastMessageId=0');
+                const response = await fetch('/api/simpleReply?lastMessageId=0');
                 const result = await response.json();
                 document.getElementById('result').textContent = JSON.stringify(result, null, 2);
             } catch (error) {
                 document.getElementById('result').textContent = 'Error: ' + error.message;
+            }
+        }
+        
+        async function testWebChat() {
+            // Simulate what the web chat does
+            try {
+                const response = await fetch('/api/getMessages?lastMessageId=0');
+                const result = await response.json();
+                
+                if (result.messages && result.messages.length > 0) {
+                    document.getElementById('result').textContent = 'SUCCESS: Web chat would show these messages:\n' + JSON.stringify(result.messages, null, 2);
+                } else {
+                    document.getElementById('result').textContent = 'No messages found for web chat';
+                }
+            } catch (error) {
+                document.getElementById('result').textContent = 'Web chat test error: ' + error.message;
             }
         }
     </script>
