@@ -1,5 +1,5 @@
 const BOT_TOKEN = "7521339424:AAHVUtusUfEVGln14aEzpZI9122RT312Nc8";
-const CHAT_ID = "-1002345678901"; // Replace with your actual Telegram chat ID
+const CHAT_ID = "489679144"; // Your Telegram chat ID
 
 export default async function handler(req, res) {
     if (req.method !== 'POST') {
