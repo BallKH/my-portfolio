@@ -260,7 +260,7 @@ const debouncedScrollHandler = debounce(() => {
 
 window.addEventListener('scroll', debouncedScrollHandler);
 
-// Chat Widget Functionality
+// Chat Widget Functionality with Name Collection
 const chatButton = document.getElementById('chat-button');
 const chatPopup = document.getElementById('chat-popup');
 const chatClose = document.getElementById('chat-close');
@@ -270,12 +270,19 @@ const chatMessages = document.getElementById('chat-messages');
 
 let lastMessageId = 0;
 let pollInterval;
+let visitorName = null;
+let sessionId = null;
+let chatStarted = false;
 
 chatButton.addEventListener('click', () => {
     chatPopup.classList.toggle('show');
     if (chatPopup.classList.contains('show')) {
-        chatInput.focus();
-        startPolling();
+        if (!chatStarted) {
+            showNameForm();
+        } else {
+            chatInput.focus();
+            startPolling();
+        }
     } else {
         stopPolling();
     }
@@ -301,6 +308,66 @@ chatInput.addEventListener('keypress', (e) => {
 
 chatSend.addEventListener('click', sendMessage);
 
+function showNameForm() {
+    chatMessages.innerHTML = `
+        <div class="name-form" style="padding: 20px; text-align: center;">
+            <h4 style="margin-bottom: 15px; color: #333;">👋 Welcome!</h4>
+            <p style="margin-bottom: 20px; color: #666;">Please enter your name to start chatting:</p>
+            <input type="text" id="visitor-name" placeholder="Enter your name..." maxlength="20" style="width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 5px; margin-bottom: 15px; font-size: 14px;">
+            <button id="start-chat-btn" style="width: 100%; padding: 10px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 14px;">Start Chat</button>
+        </div>
+    `;
+    
+    const nameInput = document.getElementById('visitor-name');
+    const startBtn = document.getElementById('start-chat-btn');
+    
+    nameInput.focus();
+    
+    nameInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            startChat();
+        }
+    });
+    
+    startBtn.addEventListener('click', startChat);
+}
+
+function startChat() {
+    const nameInput = document.getElementById('visitor-name');
+    const name = nameInput.value.trim();
+    
+    if (!name) {
+        alert('Please enter your name');
+        return;
+    }
+    
+    if (name.length < 2) {
+        alert('Name must be at least 2 characters');
+        return;
+    }
+    
+    visitorName = name;
+    const cleanName = name.toLowerCase().replace(/[^a-z0-9]/g, '');
+    sessionId = `session_${cleanName}`;
+    chatStarted = true;
+    
+    // Clear name form and show chat interface
+    chatMessages.innerHTML = '';
+    addMessage(`Hello ${visitorName}! You're now connected to support. How can I help you today?`, false);
+    
+    // Enable chat input
+    chatInput.disabled = false;
+    chatSend.disabled = false;
+    chatInput.placeholder = 'Type your message...';
+    chatInput.focus();
+    
+    // Start polling for replies
+    startPolling();
+    
+    // Notify Telegram about new visitor
+    notifyTelegram(sessionId, visitorName, 'New visitor connected');
+}
+
 function addMessage(text, isUser = false) {
     const messageDiv = document.createElement('div');
     messageDiv.className = `message ${isUser ? 'user' : 'bot'}`;
@@ -310,6 +377,8 @@ function addMessage(text, isUser = false) {
 }
 
 async function sendMessage() {
+    if (!chatStarted) return;
+    
     const message = chatInput.value.trim();
     if (!message) return;
     
@@ -323,13 +392,18 @@ async function sendMessage() {
         const response = await fetch('/api/sendMessage', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message })
+            body: JSON.stringify({ 
+                message,
+                sessionId,
+                visitorName
+            })
         });
         
         const result = await response.json();
         
         if (response.ok && result.success) {
-            addMessage('Thanks for your message! I\'ll reply shortly.', false);
+            // Notify Telegram about new message
+            notifyTelegram(sessionId, visitorName, message);
         } else {
             addMessage(`Error: ${result.error || 'Failed to send'}`, false);
         }
@@ -341,14 +415,35 @@ async function sendMessage() {
     chatSend.textContent = 'Send';
 }
 
-async function pollMessages() {
+async function notifyTelegram(sessionId, visitorName, message) {
     try {
-        const response = await fetch(`/api/chat?lastMessageId=${lastMessageId}`);
+        await fetch('/api/telegramNotify', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                sessionId,
+                visitorName,
+                message
+            })
+        });
+    } catch (error) {
+        console.error('Failed to notify Telegram:', error);
+    }
+}
+
+async function pollMessages() {
+    if (!chatStarted || !sessionId) return;
+    
+    try {
+        const response = await fetch(`/api/getMessages?sessionId=${sessionId}&lastMessageId=${lastMessageId}`);
         const result = await response.json();
         
         if (result.messages && result.messages.length > 0) {
             result.messages.forEach(msg => {
-                addMessage(msg.text, false);
+                // Only show messages that are replies (not the visitor's own messages)
+                if (msg.sender === 'support' || msg.sender === 'admin') {
+                    addMessage(msg.text, false);
+                }
                 lastMessageId = Math.max(lastMessageId, msg.id);
             });
         }
