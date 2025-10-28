@@ -41,7 +41,7 @@
         async function testWebChat() {
             // Simulate what the web chat does
             try {
-                const response = await fetch('/api/getMessages?lastMessageId=0');
+                const response = await fetch('/api/simpleReply?lastMessageId=0');
                 const result = await response.json();
                 
                 if (result.messages && result.messages.length > 0) {
