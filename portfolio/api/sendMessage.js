@@ -1,5 +1,3 @@
-import { addMessage } from './messageStore.js';
-
 export default async function handler(req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -13,19 +11,11 @@ export default async function handler(req, res) {
         return res.status(405).json({ error: 'Method not allowed' });
     }
 
-    const { message, sessionId } = req.body;
+    const { message } = req.body;
     
-    if (!message || !sessionId) {
-        return res.status(400).json({ error: 'Message and session ID required' });
+    if (!message) {
+        return res.status(400).json({ error: 'Message is required' });
     }
-
-    // Store user message
-    addMessage(sessionId, {
-        id: Date.now(),
-        text: message,
-        from: 'user',
-        timestamp: Date.now()
-    });
 
     const BOT_TOKEN = '7521339424:AAHVUtusUfEVGln14aEzpZI9122RT312Nc8';
     const CHAT_ID = '489679144';
@@ -36,7 +26,7 @@ export default async function handler(req, res) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 chat_id: CHAT_ID,
-                text: `[${sessionId}] ${message}`
+                text: `Portfolio Contact: ${message}`
             })
         });
 

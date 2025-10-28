@@ -268,30 +268,20 @@ const chatInput = document.getElementById('chat-input');
 const chatSend = document.getElementById('chat-send');
 const chatMessages = document.getElementById('chat-messages');
 
-let sessionId = 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-console.log('Current session ID:', sessionId);
-let lastMessageId = 0;
-let pollInterval;
-
 chatButton.addEventListener('click', () => {
     chatPopup.classList.toggle('show');
     if (chatPopup.classList.contains('show')) {
         chatInput.focus();
-        startPolling();
-    } else {
-        stopPolling();
     }
 });
 
 chatClose.addEventListener('click', () => {
     chatPopup.classList.remove('show');
-    stopPolling();
 });
 
 document.addEventListener('click', (e) => {
     if (!document.getElementById('chat-widget').contains(e.target)) {
         chatPopup.classList.remove('show');
-        stopPolling();
     }
 });
 
@@ -325,13 +315,13 @@ async function sendMessage() {
         const response = await fetch('/api/sendMessage', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message, sessionId })
+            body: JSON.stringify({ message })
         });
         
         const result = await response.json();
         
         if (response.ok && result.success) {
-            addMessage('Message sent! I\'ll reply shortly.', false);
+            addMessage('Thanks for your message! I\'ll reply shortly.', false);
         } else {
             addMessage(`Error: ${result.error || 'Failed to send'}`, false);
         }
@@ -341,36 +331,5 @@ async function sendMessage() {
     
     chatSend.disabled = false;
     chatSend.textContent = 'Send';
-}
-
-async function pollMessages() {
-    try {
-        const response = await fetch(`/api/getMessages?sessionId=${sessionId}&lastMessageId=${lastMessageId}`);
-        const result = await response.json();
-        
-        if (result.messages && result.messages.length > 0) {
-            result.messages.forEach(msg => {
-                if (msg.from === 'admin') {
-                    addMessage(msg.text, false);
-                    lastMessageId = Math.max(lastMessageId, msg.id);
-                }
-            });
-        }
-    } catch (error) {
-        console.error('Polling error:', error);
-    }
-}
-
-function startPolling() {
-    if (!pollInterval) {
-        pollInterval = setInterval(pollMessages, 2000);
-    }
-}
-
-function stopPolling() {
-    if (pollInterval) {
-        clearInterval(pollInterval);
-        pollInterval = null;
-    }
 }
 
