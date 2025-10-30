@@ -61,7 +61,8 @@
                     document.getElementById('result').innerHTML = `<div class="error">❌ Failed to send reply: ${result.message}</div>`;
                 }
             } catch (error) {
-                document.getElementById('result').innerHTML = `<div class="error">❌ Network error: ${error.message}</div>`;
+                console.error('Full error:', error);
+                document.getElementById('result').innerHTML = `<div class="error">❌ Network error: ${error.message}<br><br>Make sure you're running this on Vercel or with a local server.</div>`;
             }
         }
         
@@ -78,7 +79,8 @@
                 const result = await response.json();
                 document.getElementById('result').innerHTML = `<div>Messages for ${sessionId}:\n${JSON.stringify(result, null, 2)}</div>`;
             } catch (error) {
-                document.getElementById('result').innerHTML = `<div class="error">❌ Error: ${error.message}</div>`;
+                console.error('Full error:', error);
+                document.getElementById('result').innerHTML = `<div class="error">❌ Error: ${error.message}<br><br>Make sure you're running this on Vercel or with a local server.</div>`;
             }
         }
     </script>
