@@ -175,6 +175,31 @@ body {
     animation: slideUp 0.8s ease forwards;
 }
 
+/* Colorful Hover Text Effect */
+.colorful-text .letter {
+    display: inline-block;
+    transition: color 0.3s ease, transform 0.2s ease;
+    cursor: default;
+}
+
+.colorful-text .letter:hover {
+    transform: translateY(-2px);
+}
+
+.colorful-text .letter:nth-child(1):hover { color: #FFD700; } /* Gold */
+.colorful-text .letter:nth-child(2):hover { color: #FF6B6B; } /* Red */
+.colorful-text .letter:nth-child(3):hover { color: #4ECDC4; } /* Teal */
+.colorful-text .letter:nth-child(4):hover { color: #45B7D1; } /* Blue */
+.colorful-text .letter:nth-child(5):hover { color: #96CEB4; } /* Green */
+.colorful-text .letter:nth-child(6):hover { color: #FFEAA7; } /* Yellow */
+.colorful-text .letter:nth-child(7):hover { color: #DDA0DD; } /* Plum */
+.colorful-text .letter:nth-child(8):hover { color: #98D8C8; } /* Mint */
+.colorful-text .letter:nth-child(9):hover { color: #F7DC6F; } /* Light Yellow */
+.colorful-text .letter:nth-child(10):hover { color: #BB8FCE; } /* Light Purple */
+.colorful-text .letter:nth-child(11):hover { color: #85C1E9; } /* Light Blue */
+.colorful-text .letter:nth-child(12):hover { color: #F8C471; } /* Orange */
+.colorful-text .letter:nth-child(13):hover { color: #82E0AA; } /* Light Green */
+
 .title-line:nth-child(2) {
     animation-delay: 0.2s;
 }

@@ -342,5 +342,15 @@
         }
     </script>
     <script src="js/simple-chat.js"></script>
+    <script src="js/colorful-text.js"></script>
+    <script>
+        // Add colorful-text class to first title-line
+        document.addEventListener('DOMContentLoaded', function() {
+            const firstTitleLine = document.querySelector('.hero-title .title-line');
+            if (firstTitleLine) {
+                firstTitleLine.classList.add('colorful-text');
+            }
+        });
+    </script>
 </body>
 </html>
