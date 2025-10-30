@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 
 # Bot configuration
 BOT_TOKEN = "YOUR_BOT_TOKEN"
-BACKEND_API_URL = "http://localhost:5000/api"
+BACKEND_API_URL = "https://ponlork-portfolio.vercel.app/api"
 
 # Sessions are now managed by the web portfolio backend
 # No local storage needed
