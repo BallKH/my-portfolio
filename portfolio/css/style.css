@@ -186,19 +186,18 @@ body {
     transform: translateY(-2px);
 }
 
-.colorful-text .letter:nth-child(1):hover { color: #FFD700; } /* Gold */
-.colorful-text .letter:nth-child(2):hover { color: #FF6B6B; } /* Red */
-.colorful-text .letter:nth-child(3):hover { color: #4ECDC4; } /* Teal */
-.colorful-text .letter:nth-child(4):hover { color: #45B7D1; } /* Blue */
-.colorful-text .letter:nth-child(5):hover { color: #96CEB4; } /* Green */
-.colorful-text .letter:nth-child(6):hover { color: #FFEAA7; } /* Yellow */
-.colorful-text .letter:nth-child(7):hover { color: #DDA0DD; } /* Plum */
-.colorful-text .letter:nth-child(8):hover { color: #98D8C8; } /* Mint */
-.colorful-text .letter:nth-child(9):hover { color: #F7DC6F; } /* Light Yellow */
-.colorful-text .letter:nth-child(10):hover { color: #BB8FCE; } /* Light Purple */
-.colorful-text .letter:nth-child(11):hover { color: #85C1E9; } /* Light Blue */
-.colorful-text .letter:nth-child(12):hover { color: #F8C471; } /* Orange */
-.colorful-text .letter:nth-child(13):hover { color: #82E0AA; } /* Light Green */
+.colorful-text .letter:nth-child(1):hover { color: #FFD700; text-shadow: 0 0 10px #FFD700; } /* Bright Gold */
+.colorful-text .letter:nth-child(2):hover { color: #FF3030; text-shadow: 0 0 10px #FF3030; } /* Bright Red */
+.colorful-text .letter:nth-child(3):hover { color: #00FFFF; text-shadow: 0 0 10px #00FFFF; } /* Bright Cyan */
+.colorful-text .letter:nth-child(4):hover { color: #1E90FF; text-shadow: 0 0 10px #1E90FF; } /* Bright Blue */
+.colorful-text .letter:nth-child(5):hover { color: #00FF00; text-shadow: 0 0 10px #00FF00; } /* Bright Green */
+.colorful-text .letter:nth-child(6):hover { color: #FFFF00; text-shadow: 0 0 10px #FFFF00; } /* Bright Yellow */
+.colorful-text .letter:nth-child(7):hover { color: #FF00FF; text-shadow: 0 0 10px #FF00FF; } /* Bright Magenta */
+.colorful-text .letter:nth-child(8):hover { color: #00FF80; text-shadow: 0 0 10px #00FF80; } /* Bright Mint */
+.colorful-text .letter:nth-child(9):hover { color: #FFA500; text-shadow: 0 0 10px #FFA500; } /* Bright Orange */
+.colorful-text .letter:nth-child(10):hover { color: #9370DB; text-shadow: 0 0 10px #9370DB; } /* Bright Purple */
+.colorful-text .letter:nth-child(11):hover { color: #FF1493; text-shadow: 0 0 10px #FF1493; } /* Bright Pink */
+.colorful-text .letter:nth-child(12):hover { color: #32CD32; text-shadow: 0 0 10px #32CD32; } /* Bright Lime */
 
 .title-line:nth-child(2) {
     animation-delay: 0.2s;
