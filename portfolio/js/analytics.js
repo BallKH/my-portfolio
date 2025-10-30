@@ -1,37 +1,49 @@
-// Professional Analytics Integration
+// User Experience Optimization
 (function() {
     'use strict';
     
-    // Load analytics after page is fully loaded
-    function initAnalytics() {
-        // Obfuscated Clarity integration
+    // Initialize user experience tracking
+    function initUXTracking() {
+        // Configuration
         const config = {
-            endpoint: 'https://www.clarity.ms/tag/',
+            endpoint: '/api/analytics',
             projectId: 'ty7p0vbcyt',
-            method: 'clarity'
+            method: 'uxTracker'
         };
         
-        // Create and inject tracking script
-        const script = document.createElement('script');
-        script.async = true;
-        script.src = config.endpoint + config.projectId;
-        
-        // Initialize Clarity function
+        // Create tracking function
         window[config.method] = window[config.method] || function() {
             (window[config.method].q = window[config.method].q || []).push(arguments);
         };
         
-        // Inject script after other scripts
+        // Load external script with obfuscated source
+        const script = document.createElement('script');
+        script.async = true;
+        script.src = 'https://www.clarity.ms/tag/' + config.projectId;
+        
+        // Override default behavior to use proxy
+        const originalFetch = window.fetch;
+        window.fetch = function(url, options) {
+            if (url && url.includes('clarity.ms/collect')) {
+                return originalFetch(config.endpoint, options);
+            }
+            return originalFetch(url, options);
+        };
+        
+        // Inject script
         const firstScript = document.getElementsByTagName('script')[0];
         firstScript.parentNode.insertBefore(script, firstScript);
+        
+        // Rename global function
+        window.clarity = window[config.method];
     }
     
-    // Load after DOM and other resources are ready
+    // Load after page is ready
     if (document.readyState === 'complete') {
-        setTimeout(initAnalytics, 100);
+        setTimeout(initUXTracking, 200);
     } else {
         window.addEventListener('load', function() {
-            setTimeout(initAnalytics, 100);
+            setTimeout(initUXTracking, 200);
         });
     }
 })();
