@@ -205,7 +205,15 @@ async function handleManualReply(req, res) {
 
     const { sessionId, message } = req.body;
     
+    // Debug logging for Telegram requests
+    console.log(`🔍 Reply request received:`);
+    console.log(`📱 SessionId: ${sessionId}`);
+    console.log(`💬 Message: ${message}`);
+    console.log(`🌐 User-Agent: ${req.headers['user-agent']}`);
+    console.log(`📦 Full body:`, req.body);
+    
     if (!sessionId || !message) {
+        console.error(`❌ Missing required fields - sessionId: ${sessionId}, message: ${message}`);
         return res.status(400).json({ error: 'Session ID and message are required' });
     }
 
