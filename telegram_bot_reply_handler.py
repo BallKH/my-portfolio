@@ -8,7 +8,7 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 logger = logging.getLogger(__name__)
 
 # Bot configuration
-BOT_TOKEN = "YOUR_BOT_TOKEN"
+BOT_TOKEN = "7521339424:AAHVUtusUfEVGln14aEzpZI9122RT312Nc8"
 BACKEND_API_URL = "https://ponlork-portfolio.vercel.app/api"
 
 # Sessions are now managed by the web portfolio backend
