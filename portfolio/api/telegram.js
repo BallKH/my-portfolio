@@ -44,10 +44,8 @@ async function handleNotify(req, res) {
 
     try {
         const notification = (
-            `💬 New message from ${visitorName}\n` +
             `📱 Session: ${sessionId}\n` +
-            `💭 Message: ${message}\n\n` +
-            `Reply with: /reply ${sessionId} <your_message>`
+            `💭 Message: ${message}`
         );
 
         const response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {

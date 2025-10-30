@@ -184,8 +184,7 @@ def notify_telegram_new_visitor(session_id: str, visitor_name: str, initial_mess
         
         notification = (
             f"📱 Session: {session_id}\n"
-            f"💭 Message: {initial_message}\n\n"
-            f"Reply with: /reply {session_id} <your_message>"
+            f"💭 Message: {initial_message}"
         )
         
         # Send notification
