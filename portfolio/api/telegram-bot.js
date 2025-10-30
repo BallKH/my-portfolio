@@ -28,6 +28,7 @@ export default async function handler(req, res) {
                     const replyMessage = parts.slice(2).join(' ');
                     
                     // Send reply to web chat
+                    console.log(`Webhook sending reply: ${sessionId} -> ${replyMessage}`);
                     const response = await fetch('https://ponlork-portfolio.vercel.app/api/chat?action=reply', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
@@ -36,6 +37,9 @@ export default async function handler(req, res) {
                             message: replyMessage
                         })
                     });
+                    
+                    const result = await response.json();
+                    console.log(`Reply API response:`, result);
                     
                     // No confirmation message (silent)
                 }
