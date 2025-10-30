@@ -97,10 +97,53 @@ const messageStore = {
     }
 };
 
+// Rate limiting store
+const rateLimitStore = new Map();
+
+function checkRateLimit(ip) {
+    const now = Date.now();
+    const windowMs = 60000; // 1 minute
+    const maxRequests = 30;
+    
+    if (!rateLimitStore.has(ip)) {
+        rateLimitStore.set(ip, { count: 1, resetTime: now + windowMs });
+        return true;
+    }
+    
+    const record = rateLimitStore.get(ip);
+    if (now > record.resetTime) {
+        rateLimitStore.set(ip, { count: 1, resetTime: now + windowMs });
+        return true;
+    }
+    
+    if (record.count >= maxRequests) {
+        return false;
+    }
+    
+    record.count++;
+    return true;
+}
+
+function sanitizeInput(input) {
+    if (typeof input !== 'string') return '';
+    return input.replace(/<script[^>]*>.*?<\/script>/gi, '')
+                .replace(/<[^>]*>/g, '')
+                .trim()
+                .substring(0, 500);
+}
+
 export default async function handler(req, res) {
-    res.setHeader('Access-Control-Allow-Origin', '*');
+    // Security headers
+    res.setHeader('Access-Control-Allow-Origin', 'https://ponlork-portfolio.vercel.app');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    
+    // Rate limiting
+    const clientIP = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+    if (!checkRateLimit(clientIP)) {
+        return res.status(429).json({ error: 'Too many requests' });
+    }
     
     if (req.method === 'OPTIONS') {
         return res.status(200).end();
@@ -142,10 +185,19 @@ async function handleSendMessage(req, res) {
     if (!message) {
         return res.status(400).json({ error: 'Message is required' });
     }
+    
+    // Sanitize inputs
+    const cleanMessage = sanitizeInput(message);
+    const cleanSessionId = sanitizeInput(sessionId);
+    const cleanVisitorName = sanitizeInput(visitorName);
+    
+    if (!cleanMessage || cleanMessage.length < 1) {
+        return res.status(400).json({ error: 'Invalid message content' });
+    }
 
     // Store visitor message first
-    if (sessionId && visitorName) {
-        await messageStore.addMessage(sessionId, message, 'visitor');
+    if (cleanSessionId && cleanVisitorName) {
+        await messageStore.addMessage(cleanSessionId, cleanMessage, 'visitor');
     }
     
     // Create session-based notification
