@@ -110,29 +110,47 @@ class TelegramBot:
         """Send message to web visitor through backend API"""
         try:
             payload = {
-                "session_id": session_id,
-                "message": message,
-                "sender": "support_agent",
-                "timestamp": self.get_timestamp()
+                "sessionId": session_id,
+                "message": message
             }
             
-            # Send to WebSocket backend API
+            api_url = f"{BACKEND_API_URL}/chat?action=reply"
+            headers = {
+                "Content-Type": "application/json",
+                "User-Agent": "TelegramBot/1.0"
+            }
+            
+            logger.info(f"🚀 Sending reply to API: {api_url}")
+            logger.info(f"📦 Payload: {payload}")
+            
             response = requests.post(
-                "http://localhost:5000/api/send-to-visitor",
+                api_url,
                 json=payload,
-                headers={"Content-Type": "application/json"},
-                timeout=10
+                headers=headers,
+                timeout=15
             )
             
+            logger.info(f"📊 API Response Status: {response.status_code}")
+            logger.info(f"💬 API Response Text: {response.text}")
+            
             if response.status_code == 200:
-                logger.info(f"Message sent to session {session_id}: {message}")
-                return True
+                try:
+                    result = response.json()
+                    if result.get('success'):
+                        logger.info(f"✅ Reply sent successfully to {session_id}: '{message}'")
+                        return True
+                    else:
+                        logger.error(f"❌ API returned success=false: {result}")
+                        return False
+                except Exception as json_error:
+                    logger.error(f"❌ Failed to parse JSON response: {json_error}")
+                    return False
             else:
-                logger.error(f"Backend API error: {response.status_code}")
+                logger.error(f"❌ HTTP Error {response.status_code}: {response.text}")
                 return False
                 
         except requests.RequestException as e:
-            logger.error(f"Failed to send message to backend: {e}")
+            logger.error(f"❌ Failed to send message to backend: {e}")
             return False
     
     def add_session(self, session_id: str, visitor_data: dict):
