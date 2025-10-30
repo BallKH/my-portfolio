@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 # Bot configuration
 BOT_TOKEN = "7521339424:AAHVUtusUfEVGln14aEzpZI9122RT312Nc8"
-PORTFOLIO_API_URL = "http://localhost:3000/api"
+PORTFOLIO_API_URL = "https://your-vercel-domain.vercel.app/api"  # Replace with your actual Vercel URL
 
 class PortfolioTelegramBot:
     def __init__(self):
@@ -192,7 +192,7 @@ class PortfolioTelegramBot:
             }
             
             response = requests.post(
-                f"{PORTFOLIO_API_URL}/manualReply",
+                f"{PORTFOLIO_API_URL}/chat?action=reply",
                 json=payload,
                 headers={"Content-Type": "application/json"},
                 timeout=10
@@ -213,8 +213,7 @@ class PortfolioTelegramBot:
     async def get_session_messages(self, session_id: str):
         try:
             response = requests.get(
-                f"{PORTFOLIO_API_URL}/getMessages",
-                params={"sessionId": session_id, "lastMessageId": 0},
+                f"{PORTFOLIO_API_URL}/chat?action=get&sessionId={session_id}&lastMessageId=0",
                 timeout=10
             )
             
