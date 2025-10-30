@@ -25,6 +25,7 @@ class PortfolioTelegramBot:
         self.application.add_handler(CommandHandler("check", self.check_messages))
         self.application.add_handler(CommandHandler("sessions", self.list_sessions))
         self.application.add_handler(CommandHandler("newvisitor", self.handle_new_visitor))
+        self.application.add_handler(CommandHandler("test", self.test_api))
     
     def get_simple_session_id(self, original_session_id, visitor_name="Anonymous"):
         """Map session ID to name-based ID like session_john, session_mary"""
@@ -67,11 +68,31 @@ class PortfolioTelegramBot:
             "📝 /reply <session_name> <text> - Send reply to visitor\n"
             "📋 /check <session_name> - Check session messages\n"
             "📊 /sessions - List active sessions\n"
-            "👤 /newvisitor <name> <message> - Simulate new visitor\n\n"
+            "👤 /newvisitor <name> <message> - Simulate new visitor\n"
+            "🧪 /test - Test API connection\n\n"
             "Examples:\n"
-            "/reply session_john Hi\n"
-            "/reply session_mary Hello, how can I help you?"
+            "/reply session_john_1234567890 Hi\n"
+            "/reply session_mary_9876543210 Hello, how can I help?"
         )
+        
+    async def test_api(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        """Test API connectivity"""
+        try:
+            response = requests.get(f"{PORTFOLIO_API_URL}/test-telegram", timeout=10)
+            result = response.json()
+            
+            await update.message.reply_text(
+                f"✅ API Test Successful!\n"
+                f"📊 Status: {response.status_code}\n"
+                f"⏰ Time: {result.get('timestamp')}\n"
+                f"🔗 URL: {PORTFOLIO_API_URL}"
+            )
+        except Exception as e:
+            await update.message.reply_text(
+                f"❌ API Test Failed!\n"
+                f"🚫 Error: {str(e)}\n"
+                f"🔗 URL: {PORTFOLIO_API_URL}"
+            )
     
     async def reply(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         command_text = update.message.text
