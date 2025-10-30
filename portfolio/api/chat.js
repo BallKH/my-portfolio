@@ -1,4 +1,4 @@
-// Unified Chat API Handler
+// Unified Chat API Handler - Fixed import issue
 const BOT_TOKEN = '7521339424:AAHVUtusUfEVGln14aEzpZI9122RT312Nc8';
 const CHAT_ID = '489679144';
 
