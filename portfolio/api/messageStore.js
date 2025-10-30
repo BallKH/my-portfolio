@@ -3,7 +3,7 @@ if (!global.sessionMessages) {
     global.sessionMessages = {};
 }
 
-export const messageStore = {
+const messageStore = {
     addMessage(sessionId, message) {
         if (!global.sessionMessages[sessionId]) {
             global.sessionMessages[sessionId] = [];
@@ -43,3 +43,5 @@ export function addReplyMessage(text) {
     messageStore.addMessage('default_session', message);
     return true;
 }
+
+export { messageStore };
