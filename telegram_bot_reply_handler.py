@@ -40,6 +40,11 @@ class TelegramBot:
     
     async def reply(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Handle /reply command to send message to specific session"""
+        # Ignore old messages (older than 5 minutes)
+        import time
+        if time.time() - update.message.date.timestamp() > 300:
+            return
+            
         # Get the full command text
         command_text = update.message.text
         
@@ -101,6 +106,11 @@ class TelegramBot:
     
     async def handle_message(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Handle regular messages (optional - for general support)"""
+        # Ignore old messages (older than 5 minutes)
+        import time
+        if time.time() - update.message.date.timestamp() > 300:
+            return
+            
         await update.message.reply_text(
             "💡 To reply to a web visitor, use:\n"
             "/reply <session_id> <your_message>"
