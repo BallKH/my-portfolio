@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 # Bot configuration
 BOT_TOKEN = "7521339424:AAHVUtusUfEVGln14aEzpZI9122RT312Nc8"
-PORTFOLIO_API_URL = "https://my-portfolio-ball-khs-projects.vercel.app/api"  # Your actual Vercel URL
+PORTFOLIO_API_URL = "https://ponlork-portfolio.vercel.app/api"  # Correct live Vercel URL
 
 class PortfolioTelegramBot:
     def __init__(self):
@@ -176,35 +176,58 @@ class PortfolioTelegramBot:
     
     async def send_reply_to_portfolio(self, session_id: str, message: str) -> bool:
         try:
+            # Correct payload format matching manual-reply.html
             payload = {
                 "sessionId": session_id,
                 "message": message
             }
             
             api_url = f"{PORTFOLIO_API_URL}/chat?action=reply"
-            logger.info(f"Sending reply to API: {api_url}")
-            logger.info(f"Payload: {payload}")
+            headers = {
+                "Content-Type": "application/json",
+                "User-Agent": "TelegramBot/1.0"
+            }
+            
+            logger.info(f"🚀 Sending reply to API: {api_url}")
+            logger.info(f"📦 Payload: {payload}")
+            logger.info(f"📝 Headers: {headers}")
             
             response = requests.post(
                 api_url,
                 json=payload,
-                headers={"Content-Type": "application/json"},
-                timeout=10
+                headers=headers,
+                timeout=15
             )
             
-            logger.info(f"API Response Status: {response.status_code}")
-            logger.info(f"API Response: {response.text}")
+            logger.info(f"📊 API Response Status: {response.status_code}")
+            logger.info(f"💬 API Response Text: {response.text}")
             
             if response.status_code == 200:
-                result = response.json()
-                logger.info(f"✅ Reply sent successfully to {session_id}: {message}")
-                return result.get('success', False)
+                try:
+                    result = response.json()
+                    logger.info(f"📨 API Response JSON: {result}")
+                    
+                    if result.get('success'):
+                        logger.info(f"✅ Reply sent successfully to {session_id}: '{message}' [ID: {result.get('messageId')}]")
+                        return True
+                    else:
+                        logger.error(f"❌ API returned success=false: {result}")
+                        return False
+                except Exception as json_error:
+                    logger.error(f"❌ Failed to parse JSON response: {json_error}")
+                    return False
             else:
-                logger.error(f"❌ API error {response.status_code}: {response.text}")
+                logger.error(f"❌ HTTP Error {response.status_code}: {response.text}")
                 return False
                 
+        except requests.exceptions.Timeout:
+            logger.error(f"❌ Request timeout to {api_url}")
+            return False
+        except requests.exceptions.ConnectionError:
+            logger.error(f"❌ Connection error to {api_url}")
+            return False
         except Exception as e:
-            logger.error(f"❌ Failed to send reply: {e}")
+            logger.error(f"❌ Unexpected error sending reply: {e}")
             return False
     
     async def get_session_messages(self, session_id: str):
