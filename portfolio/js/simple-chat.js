@@ -215,5 +215,28 @@ function startPollingForReplies() {
     }, 3000); // Poll every 3 seconds
 }
 
+// Colorful Text Effect
+function wrapLetters(element) {
+    const text = element.textContent;
+    element.innerHTML = '';
+    
+    for (let i = 0; i < text.length; i++) {
+        const letter = text[i];
+        const span = document.createElement('span');
+        span.className = 'letter';
+        span.textContent = letter === ' ' ? '\u00A0' : letter;
+        element.appendChild(span);
+    }
+}
+
 // Initialize when page loads
-document.addEventListener('DOMContentLoaded', initializeChat);
+document.addEventListener('DOMContentLoaded', function() {
+    initializeChat();
+    
+    // Add colorful effect to first title-line
+    const firstTitleLine = document.querySelector('.hero-title .title-line');
+    if (firstTitleLine) {
+        firstTitleLine.classList.add('colorful-text');
+        wrapLetters(firstTitleLine);
+    }
+});
