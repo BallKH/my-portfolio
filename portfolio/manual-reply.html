@@ -18,18 +18,19 @@
         <h3>Send Reply</h3>
         <div>
             <label>Session ID:</label><br>
-            <input type="text" id="sessionId" placeholder="session_mra" style="width: 400px;" value="session_mra">
+            <input type="text" id="sessionId" placeholder="session_ball002" style="width: 400px;" value="session_ball002">
         </div>
         <div>
             <label>Your Reply:</label><br>
             <textarea id="message" placeholder="Hello! Thanks for reaching out. How can I help you today?" style="width: 400px; height: 80px;"></textarea>
         </div>
         <button onclick="sendReply()" style="background: #007bff; color: white; border: none; padding: 10px 20px;">Send Reply</button>
+        <button onclick="syncSessionIds()" style="background: #28a745; color: white; border: none; padding: 10px 20px; margin-left: 10px;">Sync Session IDs</button>
     </div>
     
     <div>
         <h3>Check Session Messages</h3>
-        <input type="text" id="checkSession" placeholder="session_mra" style="width: 400px;" value="session_mra">
+        <input type="text" id="checkSession" placeholder="session_ball002" style="width: 400px;" value="session_ball002">
         <button onclick="checkMessages()">Check Messages</button>
     </div>
     
@@ -84,6 +85,12 @@
                 console.error('Full error:', error);
                 document.getElementById('result').innerHTML = `<div class="error">❌ Error: ${error.message}<br><br>Make sure you're running this on Vercel or with a local server.</div>`;
             }
+        }
+        
+        function syncSessionIds() {
+            const sessionId = document.getElementById('sessionId').value.trim();
+            document.getElementById('checkSession').value = sessionId;
+            document.getElementById('result').innerHTML = `<div class="success">✅ Session IDs synced to: ${sessionId}</div>`;
         }
     </script>
 </body>
