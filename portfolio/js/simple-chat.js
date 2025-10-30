@@ -69,6 +69,9 @@ function startChat() {
     chatSend.disabled = false;
     chatInput.placeholder = 'Type your message...';
     chatInput.focus();
+    
+    // Start polling for replies
+    startPollingForReplies();
 }
 
 async function sendMessage() {
@@ -132,6 +135,40 @@ async function sendMessage() {
     chatSend.disabled = false;
     chatSend.textContent = 'Send';
     chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+let lastMessageId = 0;
+let pollingInterval;
+
+function startPollingForReplies() {
+    if (pollingInterval) clearInterval(pollingInterval);
+    
+    pollingInterval = setInterval(async () => {
+        if (!chatState.sessionId) return;
+        
+        try {
+            const response = await fetch(`/api/chat?action=get&sessionId=${chatState.sessionId}&lastMessageId=${lastMessageId}`);
+            const result = await response.json();
+            
+            if (result.messages && result.messages.length > 0) {
+                const chatMessages = document.getElementById('chat-messages');
+                
+                result.messages.forEach(msg => {
+                    if (msg.sender === 'support') {
+                        const botMsg = document.createElement('div');
+                        botMsg.className = 'message bot';
+                        botMsg.textContent = msg.text;
+                        chatMessages.appendChild(botMsg);
+                        lastMessageId = Math.max(lastMessageId, msg.id);
+                    }
+                });
+                
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+        } catch (error) {
+            console.error('Polling error:', error);
+        }
+    }, 3000); // Poll every 3 seconds
 }
 
 // Initialize when page loads
