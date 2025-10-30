@@ -1,8 +1,31 @@
 // Unified Chat API Handler
-import { messageStore } from './messageStore.js';
-
 const BOT_TOKEN = '7521339424:AAHVUtusUfEVGln14aEzpZI9122RT312Nc8';
 const CHAT_ID = '489679144';
+
+// Session-based message storage
+if (!global.sessionMessages) {
+    global.sessionMessages = {};
+}
+
+const messageStore = {
+    addMessage(sessionId, message) {
+        if (!global.sessionMessages[sessionId]) {
+            global.sessionMessages[sessionId] = [];
+        }
+        global.sessionMessages[sessionId].push(message);
+    },
+    
+    getMessages(sessionId, lastMessageId = 0) {
+        if (!global.sessionMessages[sessionId]) {
+            return [];
+        }
+        return global.sessionMessages[sessionId].filter(msg => msg.id > lastMessageId);
+    },
+    
+    getAllSessions() {
+        return global.sessionMessages;
+    }
+};
 
 export default async function handler(req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
