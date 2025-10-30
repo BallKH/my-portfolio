@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>API Test</title>
+</head>
+<body>
+    <h1>Test Telegram Reply API</h1>
+    <button onclick="testReply()">Test Reply to session_mra</button>
+    <button onclick="checkMessages()">Check Messages</button>
+    <div id="result" style="margin-top: 20px; padding: 10px; background: #f0f0f0; white-space: pre-wrap;"></div>
+
+    <script>
+        async function testReply() {
+            try {
+                const response = await fetch('/api/chat?action=reply', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        sessionId: 'session_mra', 
+                        message: 'Test reply from API' 
+                    })
+                });
+                
+                const result = await response.json();
+                document.getElementById('result').innerHTML = `Reply Test Result:\n${JSON.stringify(result, null, 2)}`;
+            } catch (error) {
+                document.getElementById('result').innerHTML = `Error: ${error.message}`;
+            }
+        }
+        
+        async function checkMessages() {
+            try {
+                const response = await fetch('/api/chat?action=get&sessionId=session_mra&lastMessageId=0');
+                const result = await response.json();
+                document.getElementById('result').innerHTML = `Messages for session_mra:\n${JSON.stringify(result, null, 2)}`;
+            } catch (error) {
+                document.getElementById('result').innerHTML = `Error: ${error.message}`;
+            }
+        }
+    </script>
+</body>
+</html>
