@@ -65,17 +65,7 @@ class TelegramBot:
         # Send message to web portfolio visitor
         success = await self.send_to_web_visitor(session_id, message)
         
-        if success:
-            await update.message.reply_text(
-                f"✅ Message sent to session: {session_id}\n"
-                f"📝 Text: {message}\n"
-                f"🌐 Delivered to web portfolio"
-            )
-        else:
-            await update.message.reply_text(
-                f"❌ Failed to send to session: {session_id}\n"
-                "Check if session exists on web portfolio"
-            )
+        # No confirmation message when replying
     
     async def list_sessions(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """List all active sessions from web portfolio"""
@@ -189,18 +179,16 @@ def register_new_visitor(session_id: str, visitor_name: str = "Anonymous"):
 def notify_telegram_new_visitor(session_id: str, visitor_name: str, initial_message: str = ""):
     """Notify Telegram when new visitor starts chat"""
     try:
-        # Send notification to Telegram (you'll need to set CHAT_ID)
-        TELEGRAM_CHAT_ID = "YOUR_TELEGRAM_CHAT_ID"  # Your Telegram chat/group ID
+        # Send notification to Telegram
+        TELEGRAM_CHAT_ID = "489679144"  # Your Telegram chat ID
         
         notification = (
-            f"🔔 New visitor connected!\n\n"
-            f"👤 Name: {visitor_name}\n"
-            f"🆔 Session: {session_id}\n"
-            f"💬 Message: {initial_message}\n\n"
+            f"📱 Session: {session_id}\n"
+            f"💭 Message: {initial_message}\n\n"
             f"Reply with: /reply {session_id} <your_message>"
         )
         
-        # Send notification (implement based on your setup)
+        # Send notification
         requests.post(
             f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
             json={
