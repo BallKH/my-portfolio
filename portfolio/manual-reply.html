@@ -57,6 +57,8 @@
                 if (result.success) {
                     document.getElementById('result').innerHTML = `<div class="success">✅ Reply sent successfully to ${result.sessionId}</div>`;
                     document.getElementById('message').value = '';
+                    // Auto-check messages after sending
+                    setTimeout(checkMessages, 500);
                 } else {
                     document.getElementById('result').innerHTML = `<div class="error">❌ Failed to send reply: ${result.message}</div>`;
                 }

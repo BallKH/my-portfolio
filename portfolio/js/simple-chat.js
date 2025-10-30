@@ -144,14 +144,18 @@ async function loadExistingMessages() {
     if (!chatState.sessionId) return;
     
     try {
+        console.log(`Loading existing messages for ${chatState.sessionId}`);
         const response = await fetch(`/api/chat?action=get&sessionId=${chatState.sessionId}&lastMessageId=0`);
         const result = await response.json();
+        
+        console.log(`Loaded messages:`, result);
         
         if (result.messages && result.messages.length > 0) {
             const chatMessages = document.getElementById('chat-messages');
             
             result.messages.forEach(msg => {
                 if (!displayedMessageIds.has(msg.id)) {
+                    console.log(`Displaying message: ${msg.text} (${msg.sender})`);
                     const msgDiv = document.createElement('div');
                     msgDiv.className = msg.sender === 'support' ? 'message bot' : 'message user';
                     msgDiv.textContent = msg.text;
@@ -162,6 +166,8 @@ async function loadExistingMessages() {
             });
             
             chatMessages.scrollTop = chatMessages.scrollHeight;
+        } else {
+            console.log('No existing messages found');
         }
     } catch (error) {
         console.error('Error loading existing messages:', error);
@@ -180,9 +186,11 @@ function startPollingForReplies() {
             
             if (result.messages && result.messages.length > 0) {
                 const chatMessages = document.getElementById('chat-messages');
+                console.log(`Polling found ${result.messages.length} new messages`);
                 
                 result.messages.forEach(msg => {
                     if (msg.sender === 'support' && !displayedMessageIds.has(msg.id)) {
+                        console.log(`New support message: ${msg.text}`);
                         const msgDiv = document.createElement('div');
                         msgDiv.className = 'message bot';
                         msgDiv.textContent = msg.text;
