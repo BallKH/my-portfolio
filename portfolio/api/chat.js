@@ -73,6 +73,16 @@ async function handleSendMessage(req, res) {
         return res.status(400).json({ error: 'Message is required' });
     }
 
+    // Store visitor message first
+    if (sessionId && visitorName) {
+        messageStore.addMessage(sessionId, {
+            id: Date.now(),
+            text: message,
+            timestamp: Date.now(),
+            sender: 'visitor'
+        });
+    }
+    
     // Create session-based notification
     const notification = sessionId && visitorName ? 
         `💬 New message from ${visitorName}\n📱 Session: ${sessionId}\n💭 Message: ${message}\n\nReply with: /reply ${sessionId} <your_message>` :

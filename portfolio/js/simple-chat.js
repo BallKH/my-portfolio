@@ -38,7 +38,7 @@ function showNameForm() {
         <div style="padding: 20px; text-align: center;">
             <h4>👋 Welcome!</h4>
             <p>Please enter your name:</p>
-            <input type="text" id="visitor-name" placeholder="Your name..." style="width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px;">
+            <input type="text" id="visitor-name" placeholder="Your name..." style="width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px;" onkeypress="if(event.key==='Enter') startChat()">
             <button onclick="startChat()" style="width: 100%; padding: 10px; background: #007bff; color: white; border: none; border-radius: 5px;">Start Chat</button>
         </div>
     `;
@@ -62,7 +62,7 @@ function startChat() {
     const chatSend = document.getElementById('chat-send');
     
     chatMessages.innerHTML = `
-        <div class="message bot">Hello ${name}! Session: ${chatState.sessionId}</div>
+        <div class="message bot">Hello ${name}! We'll reply to you soon.</div>
     `;
     
     chatInput.disabled = false;
@@ -154,11 +154,11 @@ function startPollingForReplies() {
                 const chatMessages = document.getElementById('chat-messages');
                 
                 result.messages.forEach(msg => {
-                    if (msg.sender === 'support') {
-                        const botMsg = document.createElement('div');
-                        botMsg.className = 'message bot';
-                        botMsg.textContent = msg.text;
-                        chatMessages.appendChild(botMsg);
+                    if (msg.id > lastMessageId) {
+                        const msgDiv = document.createElement('div');
+                        msgDiv.className = msg.sender === 'support' ? 'message bot' : 'message user';
+                        msgDiv.textContent = msg.text;
+                        chatMessages.appendChild(msgDiv);
                         lastMessageId = Math.max(lastMessageId, msg.id);
                     }
                 });
