@@ -44,7 +44,7 @@ function showNameForm() {
     `;
 }
 
-function startChat() {
+async function startChat() {
     const nameInput = document.getElementById('visitor-name');
     const name = nameInput.value.trim();
     
@@ -70,7 +70,10 @@ function startChat() {
     chatInput.placeholder = 'Type your message...';
     chatInput.focus();
     
-    // Start polling for replies
+    // Reset polling state, load existing messages, and start polling
+    lastMessageId = 0;
+    displayedMessageIds.clear();
+    await loadExistingMessages();
     startPollingForReplies();
 }
 
@@ -135,6 +138,35 @@ async function sendMessage() {
 let lastMessageId = 0;
 let pollingInterval;
 let displayedMessageIds = new Set();
+
+// Load existing messages when chat starts
+async function loadExistingMessages() {
+    if (!chatState.sessionId) return;
+    
+    try {
+        const response = await fetch(`/api/chat?action=get&sessionId=${chatState.sessionId}&lastMessageId=0`);
+        const result = await response.json();
+        
+        if (result.messages && result.messages.length > 0) {
+            const chatMessages = document.getElementById('chat-messages');
+            
+            result.messages.forEach(msg => {
+                if (!displayedMessageIds.has(msg.id)) {
+                    const msgDiv = document.createElement('div');
+                    msgDiv.className = msg.sender === 'support' ? 'message bot' : 'message user';
+                    msgDiv.textContent = msg.text;
+                    chatMessages.appendChild(msgDiv);
+                    displayedMessageIds.add(msg.id);
+                    lastMessageId = Math.max(lastMessageId, msg.id);
+                }
+            });
+            
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+    } catch (error) {
+        console.error('Error loading existing messages:', error);
+    }
+}
 
 function startPollingForReplies() {
     if (pollingInterval) clearInterval(pollingInterval);
