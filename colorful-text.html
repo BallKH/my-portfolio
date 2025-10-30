@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Colorful Hover Text</title>
+    <style>
+        .colorful-text {
+            font-size: 2.5rem;
+            font-weight: bold;
+            font-family: 'Arial', sans-serif;
+            display: inline-block;
+            cursor: default;
+        }
+
+        .colorful-text .letter {
+            display: inline-block;
+            transition: color 0.3s ease, transform 0.2s ease;
+        }
+
+        .colorful-text .letter:hover {
+            transform: translateY(-2px);
+        }
+
+        .colorful-text .letter:nth-child(1):hover { color: #FFD700; } /* Gold */
+        .colorful-text .letter:nth-child(2):hover { color: #FF6B6B; } /* Red */
+        .colorful-text .letter:nth-child(3):hover { color: #4ECDC4; } /* Teal */
+        .colorful-text .letter:nth-child(4):hover { color: #45B7D1; } /* Blue */
+        .colorful-text .letter:nth-child(5):hover { color: #96CEB4; } /* Green */
+        .colorful-text .letter:nth-child(6):hover { color: #FFEAA7; } /* Yellow */
+        .colorful-text .letter:nth-child(7):hover { color: #DDA0DD; } /* Plum */
+        .colorful-text .letter:nth-child(8):hover { color: #98D8C8; } /* Mint */
+        .colorful-text .letter:nth-child(9):hover { color: #F7DC6F; } /* Light Yellow */
+        .colorful-text .letter:nth-child(10):hover { color: #BB8FCE; } /* Light Purple */
+        .colorful-text .letter:nth-child(11):hover { color: #85C1E9; } /* Light Blue */
+        .colorful-text .letter:nth-child(12):hover { color: #F8C471; } /* Orange */
+    </style>
+</head>
+<body>
+    <div style="padding: 50px; text-align: center; background: #2c3e50; min-height: 100vh; display: flex; align-items: center; justify-content: center;">
+        <span class="title-line colorful-text" data-text="Ponlork CHEA">Ponlork CHEA</span>
+    </div>
+
+    <script>
+        function wrapLetters(element) {
+            const text = element.textContent;
+            element.innerHTML = '';
+            
+            for (let i = 0; i < text.length; i++) {
+                const letter = text[i];
+                const span = document.createElement('span');
+                span.className = 'letter';
+                span.textContent = letter === ' ' ? '\u00A0' : letter;
+                element.appendChild(span);
+            }
+        }
+
+        // Auto-wrap letters on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const colorfulTexts = document.querySelectorAll('.colorful-text');
+            colorfulTexts.forEach(wrapLetters);
+        });
+    </script>
+</body>
+</html>
