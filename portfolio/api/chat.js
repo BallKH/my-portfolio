@@ -16,16 +16,16 @@ const messageStore = {
             console.log('✅ Messages file read successfully');
             return parsed;
         } catch (error) {
-            // File doesn't exist yet - return empty object
+            // File doesn't exist yet - return empty object with metadata
             console.log('📝 Messages file not found, starting fresh');
-            return {};
+            return { sessions: {}, lastId: 0 };
         }
     },
     
     // PERSISTENCE: Write all messages to JSON file
-    async writeMessagesFile(allMessages) {
+    async writeMessagesFile(allData) {
         try {
-            await fs.writeFile(MESSAGES_FILE, JSON.stringify(allMessages, null, 2));
+            await fs.writeFile(MESSAGES_FILE, JSON.stringify(allData, null, 2));
             console.log('✅ Messages file written successfully');
             return true;
         } catch (error) {
@@ -34,41 +34,66 @@ const messageStore = {
         }
     },
     
+    // Generate unique incremental message ID
+    async getNextMessageId() {
+        const allData = await this.readMessagesFile();
+        const nextId = (allData.lastId || 0) + 1;
+        return nextId;
+    },
+    
     // Get messages for a specific session, filtered by lastMessageId
     async getMessages(sessionId, lastMessageId = 0) {
-        const allMessages = await this.readMessagesFile();
-        const sessionMessages = allMessages[sessionId] || [];
+        const allData = await this.readMessagesFile();
+        const sessionMessages = allData.sessions[sessionId] || [];
         const filtered = sessionMessages.filter(msg => msg.id > lastMessageId);
         console.log(`📖 Retrieved ${filtered.length} messages for ${sessionId} (after ID ${lastMessageId})`);
         return filtered;
     },
     
-    // Add message to a specific session
-    async addMessage(sessionId, message) {
-        const allMessages = await this.readMessagesFile();
+    // Add message to a specific session with unique ID
+    async addMessage(sessionId, messageText, sender = 'visitor') {
+        const allData = await this.readMessagesFile();
+        
+        // Initialize sessions object if it doesn't exist
+        if (!allData.sessions) {
+            allData.sessions = {};
+        }
         
         // Initialize session array if it doesn't exist
-        if (!allMessages[sessionId]) {
-            allMessages[sessionId] = [];
+        if (!allData.sessions[sessionId]) {
+            allData.sessions[sessionId] = [];
             console.log(`🆕 Created new session: ${sessionId}`);
         }
         
+        // Generate unique incremental ID
+        const messageId = (allData.lastId || 0) + 1;
+        allData.lastId = messageId;
+        
+        // Create message object
+        const message = {
+            id: messageId,
+            text: messageText,
+            timestamp: Date.now(),
+            sender: sender
+        };
+        
         // Add message to session
-        allMessages[sessionId].push(message);
+        allData.sessions[sessionId].push(message);
         
         // Write back to file
-        const success = await this.writeMessagesFile(allMessages);
+        const success = await this.writeMessagesFile(allData);
         if (success) {
-            console.log(`💬 Message added to ${sessionId}: "${message.text}" (${message.sender})`);
+            console.log(`💬 Message added to ${sessionId}: "${messageText}" (${sender}) [ID: ${messageId}]`);
         }
-        return success;
+        return success ? messageId : false;
     },
     
     // Get all sessions
     async getAllSessions() {
-        const allMessages = await this.readMessagesFile();
-        console.log(`📊 Retrieved ${Object.keys(allMessages).length} sessions`);
-        return allMessages;
+        const allData = await this.readMessagesFile();
+        const sessions = allData.sessions || {};
+        console.log(`📊 Retrieved ${Object.keys(sessions).length} sessions`);
+        return sessions;
     }
 };
 
@@ -120,12 +145,7 @@ async function handleSendMessage(req, res) {
 
     // Store visitor message first
     if (sessionId && visitorName) {
-        await messageStore.addMessage(sessionId, {
-            id: Date.now(),
-            text: message,
-            timestamp: Date.now(),
-            sender: 'visitor'
-        });
+        await messageStore.addMessage(sessionId, message, 'visitor');
     }
     
     // Create session-based notification
@@ -190,19 +210,12 @@ async function handleManualReply(req, res) {
     }
 
     try {
-        const messageId = Date.now();
-        const replyMessage = {
-            id: messageId,
-            text: message,
-            timestamp: messageId,
-            sender: 'support'
-        };
+        // Add reply message with unique incremental ID
+        const messageId = await messageStore.addMessage(sessionId, message, 'support');
         
-        const success = await messageStore.addMessage(sessionId, replyMessage);
-        console.log(`Reply added to ${sessionId}: ${message} (success: ${success})`);
-        
-        if (success) {
-            const allMessages = await messageStore.getMessages(sessionId);
+        if (messageId) {
+            const allMessages = await messageStore.getMessages(sessionId, 0);
+            console.log(`✅ Reply successfully added to ${sessionId} with ID ${messageId}`);
             return res.status(200).json({ 
                 success: true, 
                 sessionId,
@@ -210,10 +223,11 @@ async function handleManualReply(req, res) {
                 total: allMessages.length
             });
         } else {
+            console.error(`❌ Failed to store reply message for ${sessionId}`);
             return res.status(500).json({ error: 'Failed to store reply message' });
         }
     } catch (error) {
-        console.error(`Failed to add reply to ${sessionId}:`, error);
+        console.error(`❌ Failed to add reply to ${sessionId}:`, error);
         return res.status(500).json({ error: `Failed to add reply: ${error.message}` });
     }
 }
@@ -233,12 +247,7 @@ async function handleSimpleReply(req, res) {
     const messageId = Date.now();
     
     try {
-        await messageStore.addMessage(sessionId, {
-            id: messageId,
-            text: message,
-            timestamp: messageId,
-            sender: 'visitor'
-        });
+        const messageId = await messageStore.addMessage(sessionId, message, 'visitor');
 
         return res.status(200).json({ 
             success: true, 
@@ -262,20 +271,14 @@ async function handleAddReply(req, res) {
     }
 
     try {
-        const messageId = Date.now();
         const sessionId = 'default_session';
+        const messageId = await messageStore.addMessage(sessionId, text, 'support');
         
-        await messageStore.addMessage(sessionId, {
-            id: messageId,
-            text: text,
-            timestamp: messageId,
-            sender: 'support'
-        });
-        
-        const allMessages = await messageStore.getMessages(sessionId);
+        const allMessages = await messageStore.getMessages(sessionId, 0);
         return res.status(200).json({ 
             success: true, 
             message: 'Reply added',
+            messageId,
             total: allMessages.length
         });
     } catch (error) {
