@@ -44,14 +44,16 @@ export default async function handler(req, res) {
             // Handle /sessions command
             else if (text === '/sessions') {
                 const response = await fetch('https://ponlork-portfolio.vercel.app/api/chat?action=sessions');
-                const sessions = await response.json();
+                const result = await response.json();
+                const sessions = result.sessions || {};
                 
                 let sessionList = '📋 Active Sessions:\n\n';
                 if (Object.keys(sessions).length === 0) {
                     sessionList = '📭 No active sessions';
                 } else {
-                    for (const [sessionId, data] of Object.entries(sessions)) {
-                        sessionList += `🔹 ${data.visitor_name || 'Anonymous'}\n   📱 ID: ${sessionId}\n\n`;
+                    for (const [sessionId, messages] of Object.entries(sessions)) {
+                        const lastMessage = messages[messages.length - 1];
+                        sessionList += `🔹 Session: ${sessionId}\n   💭 Last: ${lastMessage?.text || 'No messages'}\n\n`;
                     }
                 }
                 
