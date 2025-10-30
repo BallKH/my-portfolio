@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 # Bot configuration
 BOT_TOKEN = "7521339424:AAHVUtusUfEVGln14aEzpZI9122RT312Nc8"
-PORTFOLIO_API_URL = "https://your-actual-vercel-domain.vercel.app/api"  # Replace with your actual Vercel URL
+PORTFOLIO_API_URL = "https://my-portfolio-ball-khs-projects.vercel.app/api"  # Your actual Vercel URL
 
 class PortfolioTelegramBot:
     def __init__(self):
@@ -80,37 +80,27 @@ class PortfolioTelegramBot:
         if len(parts) < 3:
             await update.message.reply_text(
                 "❌ Usage: /reply <session_name> <text>\n"
-                "Example: /reply session_john Hi\n"
-                "Example: /reply session_mary Hello, how can I help?"
+                "Example: /reply session_ponlork Hi there!\n"
+                "Example: /reply session_john Hello, how can I help?"
             )
             return
         
-        simple_session_id = parts[1]
+        session_id = parts[1]  # Use session ID directly (e.g., session_ponlork)
         message = parts[2]
         
-        # Get original session ID from simple ID
-        original_session_id = self.get_original_session_id(simple_session_id)
-        
-        if not original_session_id:
-            await update.message.reply_text(
-                f"❌ Session {simple_session_id} not found\n"
-                "Use /sessions to see active sessions"
-            )
-            return
-        
-        success = await self.send_reply_to_portfolio(original_session_id, message)
+        # Send reply directly to the session ID
+        success = await self.send_reply_to_portfolio(session_id, message)
         
         if success:
-            visitor_name = self.session_mapping.get(simple_session_id, {}).get('visitor_name', 'Unknown')
             await update.message.reply_text(
-                f"✅ Reply sent to {visitor_name}!\n"
-                f"👤 Session: {simple_session_id}\n"
+                f"✅ Reply sent successfully!\n"
+                f"👤 Session: {session_id}\n"
                 f"💬 Message: {message}"
             )
         else:
             await update.message.reply_text(
-                f"❌ Failed to send reply to {simple_session_id}\n"
-                "Check if session is still active"
+                f"❌ Failed to send reply to {session_id}\n"
+                "Check Vercel logs for details"
             )
     
     async def check_messages(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
