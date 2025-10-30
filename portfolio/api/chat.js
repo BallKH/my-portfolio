@@ -1,29 +1,87 @@
-// Unified Chat API Handler - Fixed import issue
+// Unified Chat API Handler - With persistent storage
+import { promises as fs } from 'fs';
+import path from 'path';
+
 const BOT_TOKEN = '7521339424:AAHVUtusUfEVGln14aEzpZI9122RT312Nc8';
 const CHAT_ID = '489679144';
 
-// Session-based message storage
-if (!global.sessionMessages) {
-    global.sessionMessages = {};
+// Persistent storage using JSON files in /tmp directory
+const STORAGE_DIR = '/tmp/chat-sessions';
+
+// Ensure storage directory exists
+async function ensureStorageDir() {
+    try {
+        await fs.mkdir(STORAGE_DIR, { recursive: true });
+    } catch (error) {
+        console.log('Storage dir already exists or created');
+    }
 }
 
 const messageStore = {
-    addMessage(sessionId, message) {
-        if (!global.sessionMessages[sessionId]) {
-            global.sessionMessages[sessionId] = [];
-        }
-        global.sessionMessages[sessionId].push(message);
-    },
-    
-    getMessages(sessionId, lastMessageId = 0) {
-        if (!global.sessionMessages[sessionId]) {
+    // Read messages from JSON file for a session
+    async getMessages(sessionId, lastMessageId = 0) {
+        try {
+            const filePath = path.join(STORAGE_DIR, `${sessionId}.json`);
+            const data = await fs.readFile(filePath, 'utf8');
+            const messages = JSON.parse(data);
+            return messages.filter(msg => msg.id > lastMessageId);
+        } catch (error) {
+            // File doesn't exist or is empty - return empty array
+            console.log(`No messages found for session ${sessionId}:`, error.message);
             return [];
         }
-        return global.sessionMessages[sessionId].filter(msg => msg.id > lastMessageId);
     },
     
-    getAllSessions() {
-        return global.sessionMessages;
+    // Add message to JSON file for a session
+    async addMessage(sessionId, message) {
+        try {
+            await ensureStorageDir();
+            const filePath = path.join(STORAGE_DIR, `${sessionId}.json`);
+            
+            // Read existing messages
+            let messages = [];
+            try {
+                const data = await fs.readFile(filePath, 'utf8');
+                messages = JSON.parse(data);
+            } catch (error) {
+                // File doesn't exist, start with empty array
+                console.log(`Creating new session file for ${sessionId}`);
+            }
+            
+            // Add new message
+            messages.push(message);
+            
+            // Write back to file
+            await fs.writeFile(filePath, JSON.stringify(messages, null, 2));
+            console.log(`Message added to ${sessionId}:`, message.text);
+            
+            return true;
+        } catch (error) {
+            console.error(`Failed to add message to ${sessionId}:`, error);
+            return false;
+        }
+    },
+    
+    // Get all sessions (list all JSON files)
+    async getAllSessions() {
+        try {
+            await ensureStorageDir();
+            const files = await fs.readdir(STORAGE_DIR);
+            const sessions = {};
+            
+            for (const file of files) {
+                if (file.endsWith('.json')) {
+                    const sessionId = file.replace('.json', '');
+                    const messages = await this.getMessages(sessionId);
+                    sessions[sessionId] = messages;
+                }
+            }
+            
+            return sessions;
+        } catch (error) {
+            console.error('Failed to get all sessions:', error);
+            return {};
+        }
     }
 };
 
@@ -75,7 +133,7 @@ async function handleSendMessage(req, res) {
 
     // Store visitor message first
     if (sessionId && visitorName) {
-        messageStore.addMessage(sessionId, {
+        await messageStore.addMessage(sessionId, {
             id: Date.now(),
             text: message,
             timestamp: Date.now(),
@@ -124,9 +182,11 @@ async function handleGetMessages(req, res) {
     }
 
     try {
-        const messages = messageStore.getMessages(sessionId, parseInt(lastMessageId));
+        const messages = await messageStore.getMessages(sessionId, parseInt(lastMessageId));
+        console.log(`Retrieved ${messages.length} messages for ${sessionId}`);
         return res.status(200).json({ messages, total: messages.length });
     } catch (error) {
+        console.error(`Failed to get messages for ${sessionId}:`, error);
         return res.status(500).json({ error: `Failed to get messages: ${error.message}` });
     }
 }
@@ -144,20 +204,29 @@ async function handleManualReply(req, res) {
 
     try {
         const messageId = Date.now();
-        messageStore.addMessage(sessionId, {
+        const replyMessage = {
             id: messageId,
             text: message,
             timestamp: messageId,
             sender: 'support'
-        });
-
-        return res.status(200).json({ 
-            success: true, 
-            sessionId,
-            messageId,
-            total: messageStore.getMessages(sessionId).length
-        });
+        };
+        
+        const success = await messageStore.addMessage(sessionId, replyMessage);
+        console.log(`Reply added to ${sessionId}: ${message} (success: ${success})`);
+        
+        if (success) {
+            const allMessages = await messageStore.getMessages(sessionId);
+            return res.status(200).json({ 
+                success: true, 
+                sessionId,
+                messageId,
+                total: allMessages.length
+            });
+        } else {
+            return res.status(500).json({ error: 'Failed to store reply message' });
+        }
     } catch (error) {
+        console.error(`Failed to add reply to ${sessionId}:`, error);
         return res.status(500).json({ error: `Failed to add reply: ${error.message}` });
     }
 }
@@ -177,7 +246,7 @@ async function handleSimpleReply(req, res) {
     const messageId = Date.now();
     
     try {
-        messageStore.addMessage(sessionId, {
+        await messageStore.addMessage(sessionId, {
             id: messageId,
             text: message,
             timestamp: messageId,
@@ -209,17 +278,18 @@ async function handleAddReply(req, res) {
         const messageId = Date.now();
         const sessionId = 'default_session';
         
-        messageStore.addMessage(sessionId, {
+        await messageStore.addMessage(sessionId, {
             id: messageId,
             text: text,
             timestamp: messageId,
             sender: 'support'
         });
-
+        
+        const allMessages = await messageStore.getMessages(sessionId);
         return res.status(200).json({ 
             success: true, 
             message: 'Reply added',
-            total: messageStore.getMessages(sessionId).length
+            total: allMessages.length
         });
     } catch (error) {
         return res.status(500).json({ error: `Failed to add reply: ${error.message}` });
@@ -232,9 +302,11 @@ async function handleSessions(req, res) {
     }
 
     try {
-        const sessions = messageStore.getAllSessions();
+        const sessions = await messageStore.getAllSessions();
+        console.log(`Retrieved ${Object.keys(sessions).length} sessions`);
         return res.status(200).json({ sessions, count: Object.keys(sessions).length });
     } catch (error) {
+        console.error('Failed to get all sessions:', error);
         return res.status(500).json({ error: `Failed to get sessions: ${error.message}` });
     }
 }
