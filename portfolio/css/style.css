@@ -312,7 +312,9 @@ body {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: opacity 0.4s ease-in-out;
+    transition: opacity 0.3s ease-in-out;
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
 }
 
 .image-container {
@@ -337,8 +339,10 @@ body {
     background-size: cover;
     background-position: center;
     opacity: 0;
-    transition: opacity 0.4s ease-in-out;
+    transition: opacity 0.3s ease-in-out;
     border-radius: 50%;
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
 }
 
 .image-container:hover::after,
@@ -346,18 +350,10 @@ body {
     opacity: 1;
 }
 
-.image-container:hover .profile-img,
-.image-container:active .profile-img {
-    transform: scale(1.05);
-}
-
 /* Mobile touch support */
 @media (hover: none) and (pointer: coarse) {
     .image-container:active::after {
         opacity: 1;
-    }
-    .image-container:active .profile-img {
-        transform: scale(1.05);
     }
 }
 
