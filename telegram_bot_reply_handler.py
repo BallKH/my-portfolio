@@ -154,19 +154,12 @@ class TelegramBot:
             return False
     
     def add_session(self, session_id: str, visitor_data: dict):
-        """Add new session mapping"""
-        sessions[session_id] = {
-            "visitor_name": visitor_data.get("name", "Anonymous"),
-            "timestamp": self.get_timestamp(),
-            "status": "active"
-        }
-        logger.info(f"New session added: {session_id}")
+        """Sessions are managed by web backend - no local storage needed"""
+        logger.info(f"Session noted: {session_id} for {visitor_data.get('name', 'Anonymous')}")
     
     def remove_session(self, session_id: str):
-        """Remove session mapping"""
-        if session_id in sessions:
-            del sessions[session_id]
-            logger.info(f"Session removed: {session_id}")
+        """Sessions are managed by web backend - no local storage needed"""
+        logger.info(f"Session removal noted: {session_id}")
     
     def get_timestamp(self):
         """Get current timestamp"""
@@ -213,10 +206,6 @@ def notify_telegram_new_visitor(session_id: str, visitor_name: str, initial_mess
 if __name__ == "__main__":
     # Initialize bot
     bot_instance = TelegramBot()
-    
-    # Add sample sessions for testing
-    bot_instance.add_session("1761304461298_k3perzz0p", {"name": "John Doe"})
-    bot_instance.add_session("1761304461299_abc123xyz", {"name": "Jane Smith"})
     
     # Start bot
     try:
