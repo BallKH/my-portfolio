@@ -56,7 +56,9 @@ export default async function handler(req, res) {
                 return res.status(400).json({ error: 'Invalid action parameter' });
         }
     } catch (error) {
-        return res.status(500).json({ error: `Server error: ${error.message}` });
+        console.error('Chat API Error:', error);
+        res.setHeader('Content-Type', 'application/json');
+        return res.status(500).json({ error: `Server error: ${error.message}`, stack: error.stack });
     }
 }
 
@@ -94,6 +96,8 @@ async function handleSendMessage(req, res) {
             return res.status(400).json({ error: result.description || 'Failed to send message' });
         }
     } catch (error) {
+        console.error('Send Message Error:', error);
+        res.setHeader('Content-Type', 'application/json');
         return res.status(500).json({ error: `Internal server error: ${error.message}` });
     }
 }

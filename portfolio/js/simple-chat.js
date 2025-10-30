@@ -102,7 +102,14 @@ async function sendMessage() {
             })
         });
         
-        const result = await response.json();
+        const responseText = await response.text();
+        let result;
+        try {
+            result = JSON.parse(responseText);
+        } catch (e) {
+            console.error('Server returned non-JSON:', responseText);
+            throw new Error(`Server error: ${responseText.substring(0, 100)}...`);
+        }
         
         if (result.success) {
             const botMsg = document.createElement('div');
