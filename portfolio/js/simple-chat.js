@@ -54,8 +54,12 @@ async function startChat() {
     }
     
     chatState.visitorName = name;
-    chatState.sessionId = `session_${name.toLowerCase().replace(/[^a-z0-9]/g, '')}`;
+    const timestamp = Date.now();
+    const cleanName = name.toLowerCase().replace(/[^a-z0-9]/g, '');
+    chatState.sessionId = `session_${cleanName}_${timestamp}`;
     chatState.chatStarted = true;
+    
+    console.log(`Created session: ${chatState.sessionId} for visitor: ${name}`);
     
     const chatMessages = document.getElementById('chat-messages');
     const chatInput = document.getElementById('chat-input');
