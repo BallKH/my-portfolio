@@ -181,23 +181,30 @@ class PortfolioTelegramBot:
                 "message": message
             }
             
+            api_url = f"{PORTFOLIO_API_URL}/chat?action=reply"
+            logger.info(f"Sending reply to API: {api_url}")
+            logger.info(f"Payload: {payload}")
+            
             response = requests.post(
-                f"{PORTFOLIO_API_URL}/chat?action=reply",
+                api_url,
                 json=payload,
                 headers={"Content-Type": "application/json"},
                 timeout=10
             )
             
+            logger.info(f"API Response Status: {response.status_code}")
+            logger.info(f"API Response: {response.text}")
+            
             if response.status_code == 200:
                 result = response.json()
-                logger.info(f"Reply sent to {session_id}: {message}")
+                logger.info(f"✅ Reply sent successfully to {session_id}: {message}")
                 return result.get('success', False)
             else:
-                logger.error(f"API error: {response.status_code}")
+                logger.error(f"❌ API error {response.status_code}: {response.text}")
                 return False
                 
         except Exception as e:
-            logger.error(f"Failed to send reply: {e}")
+            logger.error(f"❌ Failed to send reply: {e}")
             return False
     
     async def get_session_messages(self, session_id: str):
