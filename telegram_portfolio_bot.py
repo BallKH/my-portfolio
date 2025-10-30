@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 # Bot configuration
 BOT_TOKEN = "7521339424:AAHVUtusUfEVGln14aEzpZI9122RT312Nc8"
-PORTFOLIO_API_URL = "https://your-vercel-domain.vercel.app/api"  # Replace with your actual Vercel URL
+PORTFOLIO_API_URL = "https://your-actual-vercel-domain.vercel.app/api"  # Replace with your actual Vercel URL
 
 class PortfolioTelegramBot:
     def __init__(self):
