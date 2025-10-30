@@ -1,87 +1,74 @@
-// Unified Chat API Handler - With persistent storage
+// Unified Chat API Handler - With persistent JSON storage
 import { promises as fs } from 'fs';
-import path from 'path';
 
 const BOT_TOKEN = '7521339424:AAHVUtusUfEVGln14aEzpZI9122RT312Nc8';
 const CHAT_ID = '489679144';
 
-// Persistent storage using JSON files in /tmp directory
-const STORAGE_DIR = '/tmp/chat-sessions';
-
-// Ensure storage directory exists
-async function ensureStorageDir() {
-    try {
-        await fs.mkdir(STORAGE_DIR, { recursive: true });
-    } catch (error) {
-        console.log('Storage dir already exists or created');
-    }
-}
+// PERSISTENT STORAGE: Single JSON file to store all session messages
+const MESSAGES_FILE = '/tmp/messages.json';
 
 const messageStore = {
-    // Read messages from JSON file for a session
-    async getMessages(sessionId, lastMessageId = 0) {
+    // PERSISTENCE: Read all messages from JSON file
+    async readMessagesFile() {
         try {
-            const filePath = path.join(STORAGE_DIR, `${sessionId}.json`);
-            const data = await fs.readFile(filePath, 'utf8');
-            const messages = JSON.parse(data);
-            return messages.filter(msg => msg.id > lastMessageId);
+            const data = await fs.readFile(MESSAGES_FILE, 'utf8');
+            const parsed = JSON.parse(data);
+            console.log('✅ Messages file read successfully');
+            return parsed;
         } catch (error) {
-            // File doesn't exist or is empty - return empty array
-            console.log(`No messages found for session ${sessionId}:`, error.message);
-            return [];
+            // File doesn't exist yet - return empty object
+            console.log('📝 Messages file not found, starting fresh');
+            return {};
         }
     },
     
-    // Add message to JSON file for a session
-    async addMessage(sessionId, message) {
+    // PERSISTENCE: Write all messages to JSON file
+    async writeMessagesFile(allMessages) {
         try {
-            await ensureStorageDir();
-            const filePath = path.join(STORAGE_DIR, `${sessionId}.json`);
-            
-            // Read existing messages
-            let messages = [];
-            try {
-                const data = await fs.readFile(filePath, 'utf8');
-                messages = JSON.parse(data);
-            } catch (error) {
-                // File doesn't exist, start with empty array
-                console.log(`Creating new session file for ${sessionId}`);
-            }
-            
-            // Add new message
-            messages.push(message);
-            
-            // Write back to file
-            await fs.writeFile(filePath, JSON.stringify(messages, null, 2));
-            console.log(`Message added to ${sessionId}:`, message.text);
-            
+            await fs.writeFile(MESSAGES_FILE, JSON.stringify(allMessages, null, 2));
+            console.log('✅ Messages file written successfully');
             return true;
         } catch (error) {
-            console.error(`Failed to add message to ${sessionId}:`, error);
+            console.error('❌ Failed to write messages file:', error);
             return false;
         }
     },
     
-    // Get all sessions (list all JSON files)
-    async getAllSessions() {
-        try {
-            await ensureStorageDir();
-            const files = await fs.readdir(STORAGE_DIR);
-            const sessions = {};
-            
-            for (const file of files) {
-                if (file.endsWith('.json')) {
-                    const sessionId = file.replace('.json', '');
-                    const messages = await this.getMessages(sessionId);
-                    sessions[sessionId] = messages;
-                }
-            }
-            
-            return sessions;
-        } catch (error) {
-            console.error('Failed to get all sessions:', error);
-            return {};
+    // Get messages for a specific session, filtered by lastMessageId
+    async getMessages(sessionId, lastMessageId = 0) {
+        const allMessages = await this.readMessagesFile();
+        const sessionMessages = allMessages[sessionId] || [];
+        const filtered = sessionMessages.filter(msg => msg.id > lastMessageId);
+        console.log(`📖 Retrieved ${filtered.length} messages for ${sessionId} (after ID ${lastMessageId})`);
+        return filtered;
+    },
+    
+    // Add message to a specific session
+    async addMessage(sessionId, message) {
+        const allMessages = await this.readMessagesFile();
+        
+        // Initialize session array if it doesn't exist
+        if (!allMessages[sessionId]) {
+            allMessages[sessionId] = [];
+            console.log(`🆕 Created new session: ${sessionId}`);
         }
+        
+        // Add message to session
+        allMessages[sessionId].push(message);
+        
+        // Write back to file
+        const success = await this.writeMessagesFile(allMessages);
+        if (success) {
+            console.log(`💬 Message added to ${sessionId}: "${message.text}" (${message.sender})`);
+        }
+        return success;
+    },
+    
+    // Get all sessions
+    async getAllSessions() {
+        const allMessages = await this.readMessagesFile();
+        console.log(`📊 Retrieved ${Object.keys(allMessages).length} sessions`);
+        return allMessages;
     }
 };
 
