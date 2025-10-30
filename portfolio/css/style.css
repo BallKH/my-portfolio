@@ -328,34 +328,7 @@ body {
     box-shadow: 0 0 50px rgba(255, 107, 53, 0.2);
 }
 
-.image-container::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-image: url('assets/images/profile%20smile.jpg');
-    background-size: cover;
-    background-position: center;
-    opacity: 0;
-    transition: opacity 0.3s ease-in-out;
-    border-radius: 50%;
-    image-rendering: -webkit-optimize-contrast;
-    image-rendering: crisp-edges;
-}
 
-.image-container:hover::after,
-.image-container:active::after {
-    opacity: 1;
-}
-
-/* Mobile touch support */
-@media (hover: none) and (pointer: coarse) {
-    .image-container:active::after {
-        opacity: 1;
-    }
-}
 
 /* Section Styles */
 section {

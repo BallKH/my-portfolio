@@ -239,4 +239,19 @@ document.addEventListener('DOMContentLoaded', function() {
         firstTitleLine.classList.add('colorful-text');
         wrapLetters(firstTitleLine);
     }
+    
+    // Profile image hover effect
+    const profileImg = document.querySelector('.profile-img');
+    if (profileImg) {
+        const originalSrc = profileImg.src;
+        const smileSrc = 'assets/images/profile smile.jpg';
+        
+        profileImg.addEventListener('mouseenter', function() {
+            this.src = smileSrc;
+        });
+        
+        profileImg.addEventListener('mouseleave', function() {
+            this.src = originalSrc;
+        });
+    }
 });
